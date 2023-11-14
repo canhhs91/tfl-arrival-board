@@ -5,7 +5,7 @@
 app_name = "app"
 
 # Number of worker processes
-workers = 4
+workers = 1
 
 # Host and port settings
 bind = "0.0.0.0:8000"  # Replace with your desired host and port
@@ -22,15 +22,7 @@ graceful_timeout = 30
 # Logging configuration (customize as needed)
 accesslog = "-"  # Log to stdout
 errorlog = "-"   # Log to stdout
-
-# Set the path to your application's WSGI entry point
-# Typically in the format: "module_name:app_instance"
-# Replace 'your_app_name' with the name of your Flask app file (without the '.py' extension)
-# For example, if your app is in 'app.py', use 'app:app'
-# If you have a different app setup, adjust this accordingly.
-# For a simple Flask app, this should work:
-# wsgi_app = f"{app_name}:app"
 wsgi_app = "app:app"  # Replace 'your_app_name' with your app's name
 
 # Enable daemon mode (uncomment if needed)
-# daemon = True
+daemon = True
