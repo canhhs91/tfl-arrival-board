@@ -28,11 +28,11 @@
                 const currentTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
 
                 // Set the text content of arrivalsTitle to include the current time
-                arrivalsTitle.textContent = `Stop K Sullivan Avenue - ${currentTime}`;
+                arrivalsTitle.textContent = `Sullivan Avenue Stop K - ${currentTime}`;
 
                 arrivalsContainer.appendChild(arrivalsTitle);
 
-                data.arrivals.forEach(function(arrival, index) {
+                data.arrivals.slice(0, 7).forEach(function(arrival, index) {
                     const arrivalItem = document.createElement("div");
                     arrivalItem.classList.add("arrival-item");
                     // Create separate divs for lineName, destination, and timeToStation
@@ -66,8 +66,8 @@
             });
         }
 
-        // Periodically update the UI every 30 seconds
-        setInterval(updateUI, 500000);
+        // Periodically update the UI every 15 seconds
+        setInterval(updateUI, 15000);
         
         // Initialize the UI on page load
         updateUI();

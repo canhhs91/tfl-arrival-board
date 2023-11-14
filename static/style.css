@@ -102,12 +102,13 @@ body {
     margin-right: 15px;
     float: left; /* Float line-name to the left */
     text-align: right; /* Text align right */
-    width: 60px;
+    width: 120px;
 }
 
 .destination {
     flex: 1; /* Stretch destination to fill available space */
     margin-right: 25px;
+    margin-left: 35px;
     text-align: left; /* Text align left */
     overflow: hidden; /* Hide overflow text */
 }
