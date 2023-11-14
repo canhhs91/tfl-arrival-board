@@ -2,11 +2,11 @@
 
 # Define the Flask app file and the Gunicorn command
 FLASK_APP = app:app
-GUNICORN_CMD = gunicorn
+GUNICORN_CMD = /home/canhho/.local/bin/gunicorn
 
 
 # Define the production configuration file (you can customize this)
-CONFIG_FILE = gunicorn_config.py
+CONFIG_FILE = /home/canhho/www/tfl-arrival-board/gunicorn_config.py
 
 .PHONY: run-prod stop-prod
 
