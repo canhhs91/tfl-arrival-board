@@ -26,7 +26,7 @@ def update_arrivals():
 
         sorted_arrivals = sorted(
             arrivals, key=lambda arrival: arrival['timeToStation'], reverse=False)
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         print(f"Error fetching arrivals: {e}")
 
 
