@@ -1,0 +1,64 @@
+@font-face {
+    font-family: "tfl-font-regular";
+    src: url("/static/tfl-regular.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "tfl-font-heavy";
+    src: url("/static/tfl-heavy.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "tfl-font-bold";
+    src: url("/static/tfl-bold.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "tfl-font-medium";
+    src: url("/static/tfl-medium.ttf") format("truetype");
+    font-weight: normal;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000;
+}
+
+.led-matrix {
+    display: inline-block;
+    background-color: #000;
+}
+
+.text {
+    font-family: "tfl-font-regular", monospace;
+    color: #ffc80a;
+    font-size: 24px;
+    white-space: nowrap;
+}
+
+.text--heavy {
+    font-family: "tfl-font-heavy", monospace;
+    font-weight: normal;
+}
+
+.text--bold-numeric {
+    font-family: "tfl-font-bold", monospace;
+    font-weight: normal;
+}
+
+.text--medium {
+    font-family: "tfl-font-medium", monospace;
+    font-weight: normal;
+}
+
+.text--regular {
+    font-family: "tfl-font-regular", monospace;
+    font-weight: normal;
+}
