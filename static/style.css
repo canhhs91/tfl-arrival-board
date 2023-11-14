@@ -22,12 +22,17 @@
     font-weight: normal;
 }
 
+html {
+    font-size: 19px;
+}
+
 body {
     margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    width: 100vw;
     background-color: #000;
 }
 
@@ -39,7 +44,7 @@ body {
 .text {
     font-family: "tfl-font-regular", monospace;
     color: #ffc80a;
-    font-size: 24px;
+    font-size: 1.5rem;
     white-space: nowrap;
 }
 
@@ -61,4 +66,65 @@ body {
 .text--regular {
     font-family: "tfl-font-regular", monospace;
     font-weight: normal;
+}
+
+.timetable-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    padding: 15px 20px 15px 10px;
+    box-sizing: border-box;
+}
+
+/* Add CSS styles for the individual arrival items */
+.arrival-item {
+    display: flex; /* Display arrivals horizontally */
+    align-items: center; /* Center items vertically */
+    justify-content: space-between; /* Space evenly between items */
+    flex-direction: row; /* Display items horizontally */
+    margin: 5px;
+    width: 100%;
+}
+.order {
+    font-weight: bold;
+    margin-right: 15px;
+    float: left; /* Float line-name to the left */
+    text-align: right; /* Text align right */
+    width: 40px;
+}
+
+/* Add CSS styles for the elements within each arrival item */
+.line-name {
+    font-weight: bold;
+    margin-right: 15px;
+    float: left; /* Float line-name to the left */
+    text-align: right; /* Text align right */
+    width: 60px;
+}
+
+.destination {
+    flex: 1; /* Stretch destination to fill available space */
+    margin-right: 25px;
+    text-align: left; /* Text align left */
+    overflow: hidden; /* Hide overflow text */
+}
+
+.destination-text {
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Display ellipsis for clipped text */
+}
+
+.time-to-station {
+    float: right; /* Float time-to-station to the right */
+    text-align: right; /* Text align right */
+}
+.arrivals-title {
+    text-align: center;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

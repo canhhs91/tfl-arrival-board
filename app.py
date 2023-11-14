@@ -17,12 +17,12 @@ def update_arrivals():
             f'https://api.tfl.gov.uk/StopPoint/{sullivan_stop_K}/Arrivals').json()
         for i, arrival in enumerate(arrivals):
             # Convert to minutes
-            if arrival['timeToStation'] < 30:
+            if arrival['timeToStation'] <= 31:
                 arrivals[i]['timeToStationMins'] = 'due'
-            elif arrival['timeToStation'] < 60:
+            elif arrival['timeToStation'] <= 91:
                 arrivals[i]['timeToStationMins'] = '1 min'
             else:
-                arrival['timeToStationMins'] = f"{arrival['timeToStation'] // 60} mins"
+                arrival['timeToStationMins'] = f"{round(arrival['timeToStation'] / 60)} mins"
 
         sorted_arrivals = sorted(
             arrivals, key=lambda arrival: arrival['timeToStation'], reverse=False)

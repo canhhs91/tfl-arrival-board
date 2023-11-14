@@ -4,48 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        /* Add CSS styles for the timetable container */
-        .timetable-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        /* Add CSS styles for the individual arrival items */
-        .arrival-item {
-            display: flex; /* Display arrivals horizontally */
-            align-items: center; /* Center items vertically */
-            margin: 5px;
-        }
-        .order {
-            font-weight: bold;
-            margin-right: 15px;
-            float: left; /* Float line-name to the left */
-            text-align: right; /* Text align right */
-        }
-
-        /* Add CSS styles for the elements within each arrival item */
-        .line-name {
-            font-weight: bold;
-            margin-right: 15px;
-            float: left; /* Float line-name to the left */
-            text-align: right; /* Text align right */
-        }
-
-        .destination {
-            flex: 1; /* Stretch destination to fill available space */
-            margin-right: 25px;
-            text-align: left; /* Text align left */
-        }
-
-        .time-to-station {
-            float: right; /* Float time-to-station to the right */
-            text-align: right; /* Text align right */
-        }
-    </style>
     <title>TFL Arrivals</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -55,7 +13,25 @@
                 // For example, you can update a <div> element with id "arrivals" with the data
                 const arrivalsContainer = document.getElementById("arrivals");
                 arrivalsContainer.innerHTML = ''; // Clear previous data
-                
+                const arrivalsTitle = document.createElement("div");
+                arrivalsTitle.classList.add("arrivals-title", "text--heavy");
+
+                // Get the current time
+                const now = new Date();
+
+                // Format the time as "h:mm a"
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
+                const ampm = hours >= 12 ? "PM" : "AM";
+                const formattedHours = hours % 12 || 12;
+                const formattedMinutes = minutes.toString().padStart(2, '0');
+                const currentTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
+
+                // Set the text content of arrivalsTitle to include the current time
+                arrivalsTitle.textContent = `Stop K Sullivan Avenue - ${currentTime}`;
+
+                arrivalsContainer.appendChild(arrivalsTitle);
+
                 data.arrivals.forEach(function(arrival, index) {
                     const arrivalItem = document.createElement("div");
                     arrivalItem.classList.add("arrival-item");
@@ -71,7 +47,7 @@
 
                     const destinationDiv = document.createElement("div");
                     destinationDiv.classList.add("destination");
-                    destinationDiv.textContent = arrival.destinationName;
+                    destinationDiv.innerHTML = "<div class='destination-text'>" + arrival.destinationName + "</div>";
 
                     const timeToStationDiv = document.createElement("div");
                     timeToStationDiv.textContent = `${arrival.timeToStationMins}`;
@@ -84,11 +60,14 @@
 
                     arrivalsContainer.appendChild(arrivalItem);
                 });
+
+                
+
             });
         }
 
         // Periodically update the UI every 30 seconds
-        setInterval(updateUI, 5000);
+        setInterval(updateUI, 500000);
         
         // Initialize the UI on page load
         updateUI();
@@ -99,10 +78,8 @@
     <div class="led-matrix">
         <div class="text text-regular">
             <!-- Add a <div> element to display the arrivals -->
-                <div class="timetable-container">
-                    <div id="arrivals">
-                        <!-- Arrivals will be populated here -->
-                    </div>
+            
+                <div id="arrivals" class="timetable-container">
                 </div>
         </div>
     </div>
