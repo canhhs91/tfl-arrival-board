@@ -1,0 +1,11 @@
+[Unit]
+Description=Start TFL Arrival Board
+
+[Service]
+ExecStart=/usr/bin/python3 /home/canhho/www/tfl-arrival-board/app.py
+WorkingDirectory=/home/canhho/www/tfl-arrival-board
+Restart=always
+User=canhho
+
+[Install]
+WantedBy=multi-user.target
