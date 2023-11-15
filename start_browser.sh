@@ -1,5 +1,6 @@
 #!/bin/bash
-sleep 15
+sleep 5
+unclutter -idle 0
 export DISPLAY=:0
 # Start Chromium in incognito mode with the specified URL
 #chromium-browser --incognito http://localhost:5000 &
