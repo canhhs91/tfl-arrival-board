@@ -3,7 +3,6 @@ Description=Start TFL Arrival Board
 
 [Service]
 ExecStart=/home/canhho/www/tfl-arrival-board/venv/bin/python3 /home/canhho/www/tfl-arrival-board/app.py
-ExecStartPost=/bin/sh -c '/home/canhho/www/tfl-arrival-board/start_browser.sh'
 WorkingDirectory=/home/canhho/www/tfl-arrival-board
 Restart=always
 User=canhho

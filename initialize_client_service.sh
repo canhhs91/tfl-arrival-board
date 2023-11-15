@@ -1,22 +1,7 @@
 #!/bin/bash
-# Update package list and install required packages
-sudo apt-get update
-sudo apt-get install unclutter matchbox-window-manager xautomation virtualenv
-
-# Create a virtual environment
-virtualenv venv
-
-# Activate the virtual environment
-source venv/bin/activate
-
-# Install the dependencies
-pip install -r requirements.txt
-
-# Deactivate the virtual environment
-deactivate
 
 # Define the source and destination paths for the service file
-SERVICE_FILE="tfl-arrival-board.service"
+SERVICE_FILE="start_browser.service"
 SERVICE_SOURCE="./$SERVICE_FILE"
 SERVICE_DESTINATION="/etc/systemd/system/$SERVICE_FILE"
 
