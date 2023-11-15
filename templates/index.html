@@ -7,70 +7,101 @@
     <title>TFL Arrivals</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        let activeTimetableIndex = 0;
+        let stopCount = 0;
         function updateUI() {
             $.get("/get_arrivals", function(data) {
                 // Update the UI with the received data
                 // For example, you can update a <div> element with id "arrivals" with the data
                 const arrivalsContainer = document.getElementById("arrivals");
                 arrivalsContainer.innerHTML = ''; // Clear previous data
-                const arrivalsTitle = document.createElement("div");
-                arrivalsTitle.classList.add("arrivals-title", "text--heavy");
+                data.stops.forEach(function(data, index){
+                    stopContainer = document.createElement("div");
+                    stopContainer.classList.add("timetable-container");
 
-                // Get the current time
-                const now = new Date();
+                    const arrivalsTitle = document.createElement("div");
+                    arrivalsTitle.classList.add("arrivals-title", "arrivals-item", "text--heavy");
 
-                // Format the time as "h:mm a"
-                const hours = now.getHours();
-                const minutes = now.getMinutes();
-                const ampm = hours >= 12 ? "PM" : "AM";
-                const formattedHours = hours % 12 || 12;
-                const formattedMinutes = minutes.toString().padStart(2, '0');
-                const currentTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
+                    // Get the current time
+                    const now = new Date();
 
-                // Set the text content of arrivalsTitle to include the current time
-                arrivalsTitle.textContent = `Sullivan Avenue Stop K - ${currentTime}`;
+                    // Format the time as "h:mm a"
+                    const hours = now.getHours();
+                    const minutes = now.getMinutes();
+                    const ampm = hours >= 12 ? "PM" : "AM";
+                    const formattedHours = hours % 12 || 12;
+                    const formattedMinutes = minutes.toString().padStart(2, '0');
+                    const currentTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
 
-                arrivalsContainer.appendChild(arrivalsTitle);
+                    // Set the text content of arrivalsTitle to include the current time
+                    arrivalsTitle.textContent = `${data.title} - ${currentTime}`;
 
-                data.arrivals.slice(0, 7).forEach(function(arrival, index) {
-                    const arrivalItem = document.createElement("div");
-                    arrivalItem.classList.add("arrival-item");
-                    // Create separate divs for lineName, destination, and timeToStation
-                    const orderDiv = document.createElement("div");
-                    orderDiv.classList.add("order");
-                    orderDiv.textContent = index + 1;
+                    stopContainer.appendChild(arrivalsTitle);
 
-                    // Create separate divs for lineName, destination, and timeToStation
-                    const lineNameDiv = document.createElement("div");
-                    lineNameDiv.classList.add("line-name");
-                    lineNameDiv.textContent = arrival.lineName;
+                    data.arrivals.slice(0, 6).forEach(function(arrival, index) {
+                        const arrivalItem = document.createElement("div");
+                        arrivalItem.classList.add("arrival-item");
+                        // Create separate divs for lineName, destination, and timeToStation
+                        const orderDiv = document.createElement("div");
+                        orderDiv.classList.add("order");
+                        orderDiv.textContent = index + 1;
 
-                    const destinationDiv = document.createElement("div");
-                    destinationDiv.classList.add("destination");
-                    destinationDiv.innerHTML = "<div class='destination-text'>" + arrival.destinationName + "</div>";
+                        // Create separate divs for lineName, destination, and timeToStation
+                        const lineNameDiv = document.createElement("div");
+                        lineNameDiv.classList.add("line-name");
+                        lineNameDiv.textContent = arrival.lineName;
 
-                    const timeToStationDiv = document.createElement("div");
-                    timeToStationDiv.textContent = `${arrival.timeToStationMins}`;
+                        const destinationDiv = document.createElement("div");
+                        destinationDiv.classList.add("destination");
+                        destinationDiv.innerHTML = "<div class='destination-text'>" + arrival.destinationName + "</div>";
 
-                    // Append the divs to the arrivalItem
-                    arrivalItem.appendChild(orderDiv);
-                    arrivalItem.appendChild(lineNameDiv);
-                    arrivalItem.appendChild(destinationDiv);
-                    arrivalItem.appendChild(timeToStationDiv);
+                        const timeToStationDiv = document.createElement("div");
+                        timeToStationDiv.textContent = `${arrival.timeToStationMins}`;
 
-                    arrivalsContainer.appendChild(arrivalItem);
-                });
+                        // Append the divs to the arrivalItem
+                        arrivalItem.appendChild(orderDiv);
+                        arrivalItem.appendChild(lineNameDiv);
+                        arrivalItem.appendChild(destinationDiv);
+                        arrivalItem.appendChild(timeToStationDiv);
+                        stopContainer.appendChild(arrivalItem);
 
-                
+                    });
+                    arrivalsContainer.appendChild(stopContainer);
+                })
+                // Set stopsLength based on data.stops.length
+                stopCount = data.stops.length;
 
+                 // Highlight the active timetable-container
+                 highlightActiveTimetable();
+            });
+        }
+
+        function highlightActiveTimetable() {
+            const timetableContainers = document.querySelectorAll(".timetable-container");
+            timetableContainers.forEach((container, index) => {
+                if (index === activeTimetableIndex) {
+                    container.classList.add("active");
+                } else {
+                    container.classList.remove("active");
+                }
             });
         }
 
         // Periodically update the UI every 15 seconds
-        setInterval(updateUI, 15000);
+        setInterval(updateUI, 5000);
         
         // Initialize the UI on page load
         updateUI();
+
+        $(document).ready(function() {
+            // Add a click event listener to the refresh button
+            $('#arrivals').on('click', function() {
+                console.log('test');
+                // Move to the next timetable-container on click
+                activeTimetableIndex = (activeTimetableIndex + 1) % stopCount;
+                highlightActiveTimetable();
+            });
+        });
     </script>
 
 </head>
@@ -79,7 +110,7 @@
         <div class="text text-regular">
             <!-- Add a <div> element to display the arrivals -->
             
-                <div id="arrivals" class="timetable-container">
+                <div id="arrivals">
                 </div>
         </div>
     </div>

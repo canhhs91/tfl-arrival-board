@@ -23,7 +23,7 @@
 }
 
 html {
-    font-size: 19px;
+    font-size: 21px;
     cursor: none;
 }
 
@@ -69,15 +69,24 @@ body {
     font-weight: normal;
 }
 
+#arrivals {
+    height: 100vh;
+}
+
 .timetable-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
     width: 100vw;
+    height: 100vh;
     padding: 15px 20px 15px 10px;
     box-sizing: border-box;
+    display: none;
+}
+
+.timetable-container.active {
+    display: flex;
 }
 
 /* Add CSS styles for the individual arrival items */
@@ -86,7 +95,7 @@ body {
     align-items: center; /* Center items vertically */
     justify-content: space-between; /* Space evenly between items */
     flex-direction: row; /* Display items horizontally */
-    margin: 5px;
+    margin: 8px;
     width: 100%;
 }
 .order {
@@ -125,6 +134,7 @@ body {
     text-align: right; /* Text align right */
 }
 .arrivals-title {
+    margin: 10px;
     text-align: center;
     width: 100%;
     overflow: hidden;
