@@ -1,28 +1,38 @@
 from flask import Flask, render_template, jsonify
 from apscheduler.schedulers.background import BackgroundScheduler
 import requests
-import time
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
+load_dotenv()
+
+tfl_app_key = os.getenv('TFL_APP_KEY')
 
 # Initialize an empty list to store the arrivals
 sorted_arrivals = [
     {
         "order": 1,
         "stop_id": "490003753W",
-        "title": "Sullivan Avenue Stop K",
+        "title": "Sullivan Avenue (Stop K)",
         "arrivals": []
     },
     {
         "order": 2,
         "stop_id": "490003753E",
-        "title": "Sullivan Avenue Stop J",
+        "title": "Sullivan Avenue (Stop J)",
         "arrivals": []
     },
     {
         "order": 3,
         "stop_id": "490010220S",
-        "title": "Newham Way Stop C",
+        "title": "Newham Way (Stop C)",
+        "arrivals": []
+    },
+    {
+        "order": 4,
+        "stop_id": "490009092E",
+        "title": "Custom House Station - Lisie Road (Stop E)",
         "arrivals": []
     }
 ]
@@ -34,7 +44,7 @@ def update_arrivals():
         stop_id = stop_data['stop_id']
         try:
             arrivals = requests.get(
-                f'https://api.tfl.gov.uk/StopPoint/{stop_id}/Arrivals').json()
+                f'https://api.tfl.gov.uk/StopPoint/{stop_id}/Arrivals?app_key={tfl_app_key}').json()
             for i, arrival in enumerate(arrivals):
                 # Convert to minutes
                 if arrival['timeToStation'] <= 31:
@@ -48,13 +58,12 @@ def update_arrivals():
                 arrivals, key=lambda arrival: arrival['timeToStation'], reverse=False)
 
             # sleep for 1 second to avoid rate limiting
-            time.sleep(1)
         except Exception as e:
             print(f"Error fetching arrivals: {e}")
 
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_arrivals, 'interval', seconds=5)
+scheduler.add_job(update_arrivals, 'interval', seconds=1)
 scheduler.start()
 
 

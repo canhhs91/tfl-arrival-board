@@ -9,6 +9,18 @@
     <script>
         let activeTimetableIndex = 0;
         let stopCount = 0;
+        
+        function updateClock() {
+            const clockElement = document.getElementById("clock");
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            const ampm = hours >= 12 ? 'pm' : 'am';
+            const formattedTime = `${hours % 12}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`;
+            clockElement.textContent = formattedTime;
+        }
+
         function updateUI() {
             $.get("/get_arrivals", function(data) {
                 // Update the UI with the received data
@@ -18,27 +30,15 @@
                 data.stops.forEach(function(data, index){
                     stopContainer = document.createElement("div");
                     stopContainer.classList.add("timetable-container");
-
                     const arrivalsTitle = document.createElement("div");
-                    arrivalsTitle.classList.add("arrivals-title", "arrivals-item", "text--heavy");
-
-                    // Get the current time
-                    const now = new Date();
-
-                    // Format the time as "h:mm a"
-                    const hours = now.getHours();
-                    const minutes = now.getMinutes();
-                    const ampm = hours >= 12 ? "PM" : "AM";
-                    const formattedHours = hours % 12 || 12;
-                    const formattedMinutes = minutes.toString().padStart(2, '0');
-                    const currentTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
-
+                    arrivalsTitle.classList.add("stop-title", "arrivals-item", "text--heavy");
+                   
                     // Set the text content of arrivalsTitle to include the current time
-                    arrivalsTitle.textContent = `${data.title} - ${currentTime}`;
+                    arrivalsTitle.textContent = `${data.title}`;
 
                     stopContainer.appendChild(arrivalsTitle);
 
-                    data.arrivals.slice(0, 6).forEach(function(arrival, index) {
+                    data.arrivals.slice(0, 5).forEach(function(arrival, index) {
                         const arrivalItem = document.createElement("div");
                         arrivalItem.classList.add("arrival-item");
                         // Create separate divs for lineName, destination, and timeToStation
@@ -87,20 +87,24 @@
             });
         }
 
-        // Periodically update the UI every 15 seconds
-        setInterval(updateUI, 5000);
-        
-        // Initialize the UI on page load
-        updateUI();
+       
 
         $(document).ready(function() {
             // Add a click event listener to the refresh button
-            $('#arrivals').on('click', function() {
-                console.log('test');
+            $('#main-container').on('click', function() {
                 // Move to the next timetable-container on click
                 activeTimetableIndex = (activeTimetableIndex + 1) % stopCount;
                 highlightActiveTimetable();
             });
+             // Periodically update the UI every 5 seconds
+            setInterval(updateUI, 5000);
+            // Periodically update the clock every second
+            setInterval(updateClock, 1000);
+            
+            // Initialize the UI on page load
+            updateUI();
+            // Initialize the clock on page load
+            updateClock();
         });
     </script>
 
@@ -110,8 +114,14 @@
         <div class="text text-regular">
             <!-- Add a <div> element to display the arrivals -->
             
-                <div id="arrivals">
+            <div id="main-container">
+                <!-- <div id="stop-title" class="text--heavy">
+                </div> -->
+                <div id="arrivals"></div>  
+                <div id="clock">
                 </div>
+
+            </div>
         </div>
     </div>
 </body>

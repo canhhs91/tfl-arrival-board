@@ -69,8 +69,11 @@ body {
     font-weight: normal;
 }
 
-#arrivals {
-    height: 100vh;
+#main-container {
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .timetable-container {
@@ -79,8 +82,7 @@ body {
     align-items: center;
     justify-content: center;
     width: 100vw;
-    height: 100vh;
-    padding: 15px 20px 15px 10px;
+    padding: 0 30px 10px 20px;
     box-sizing: border-box;
     display: none;
 }
@@ -133,10 +135,16 @@ body {
     float: right; /* Float time-to-station to the right */
     text-align: right; /* Text align right */
 }
-.arrivals-title {
+.stop-title {
     margin: 10px;
     text-align: center;
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-align: center;
+}
+
+#clock {
+    text-align: center;
+    font-family: "tfl-font-heavy", monospace;
 }
