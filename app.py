@@ -45,9 +45,9 @@ def update_arrivals():
         stop_id = stop_data['stop_id']
         try:
             arrivals = requests.get(
-                f'https://api.tfl.gov.uk/StopPoint/{stop_id}/Arrivals?app_key={tfl_app_key}').json()
+                'https://api.tfl.gov.uk/StopPoint/{}/Arrivals?app_key={}'.format(stop_id, tfl_app_key)).json()
             print(
-                f'https://api.tfl.gov.uk/StopPoint/{stop_id}/Arrivals?app_key={tfl_app_key}')
+                'https://api.tfl.gov.uk/StopPoint/{}/Arrivals?app_key={}'.format(stop_id, tfl_app_key))
             for i, arrival in enumerate(arrivals):
                 # Convert to minutes
                 if arrival['timeToStation'] <= 31:
@@ -55,7 +55,8 @@ def update_arrivals():
                 elif arrival['timeToStation'] <= 91:
                     arrivals[i]['timeToStationMins'] = '1 min'
                 else:
-                    arrival['timeToStationMins'] = f"{round(arrival['timeToStation'] / 60)} mins"
+                    arrival['timeToStationMins'] = "{} mins".format(
+                        round(arrival['timeToStation'] / 60))
 
             stop_data["arrivals"] = sorted(
                 arrivals, key=lambda arrival: arrival['timeToStation'], reverse=False)
@@ -63,7 +64,7 @@ def update_arrivals():
             # sleep for 1 second to avoid rate limiting
             time.sleep(1)
         except Exception as e:
-            print(f"Error fetching arrivals: {e}")
+            print("Error fetching arrivals: {}".format(e))
 
 
 scheduler = BackgroundScheduler()
