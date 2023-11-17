@@ -3,6 +3,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 from dotenv import load_dotenv
 import os
+import time
 
 app = Flask(__name__)
 load_dotenv()
@@ -45,6 +46,8 @@ def update_arrivals():
         try:
             arrivals = requests.get(
                 f'https://api.tfl.gov.uk/StopPoint/{stop_id}/Arrivals?app_key={tfl_app_key}').json()
+            print(
+                f'https://api.tfl.gov.uk/StopPoint/{stop_id}/Arrivals?app_key={tfl_app_key}')
             for i, arrival in enumerate(arrivals):
                 # Convert to minutes
                 if arrival['timeToStation'] <= 31:
@@ -58,12 +61,13 @@ def update_arrivals():
                 arrivals, key=lambda arrival: arrival['timeToStation'], reverse=False)
 
             # sleep for 1 second to avoid rate limiting
+            time.sleep(1)
         except Exception as e:
             print(f"Error fetching arrivals: {e}")
 
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_arrivals, 'interval', seconds=1)
+scheduler.add_job(update_arrivals, 'interval', seconds=5)
 scheduler.start()
 
 
