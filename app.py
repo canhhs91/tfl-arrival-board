@@ -46,8 +46,6 @@ def update_arrivals():
         try:
             arrivals = requests.get(
                 'https://api.tfl.gov.uk/StopPoint/{}/Arrivals?app_key={}'.format(stop_id, tfl_app_key)).json()
-            print(
-                'https://api.tfl.gov.uk/StopPoint/{}/Arrivals?app_key={}'.format(stop_id, tfl_app_key))
             for i, arrival in enumerate(arrivals):
                 # Convert to minutes
                 if arrival['timeToStation'] <= 31:
@@ -80,7 +78,6 @@ def index():
 
 @app.route('/get_arrivals')
 def get_arrivals():
-    update_arrivals()
     return jsonify(stops=sorted_arrivals)
 
 

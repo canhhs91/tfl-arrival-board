@@ -6,6 +6,24 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>TFL Arrivals</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+
+</head>
+<body>
+    <div class="led-matrix">
+        <div class="text text-regular">
+            <!-- Add a <div> element to display the arrivals -->
+            
+            <div id="main-container">
+                <!-- <div id="stop-title" class="text--heavy">
+                </div> -->
+                <div id="arrivals"></div>  
+                <div id="clock">
+                </div>
+
+            </div>
+        </div>
+    </div>
     <script>
         let activeTimetableIndex = 0;
         let stopCount = 0;
@@ -98,35 +116,19 @@
                 activeTimetableIndex = (activeTimetableIndex + 1) % stopCount;
                 highlightActiveTimetable();
             });
+       
             // Initialize the UI on page load
             updateUI();
             // Initialize the clock on page load
             updateClock();
             
-             // Periodically update the UI every 5 seconds
+                // Periodically update the UI every 5 seconds
             setInterval(updateUI, 5000);
             // Periodically update the clock every second
             setInterval(updateClock, 1000);
             
-            
         });
+        
     </script>
-
-</head>
-<body>
-    <div class="led-matrix">
-        <div class="text text-regular">
-            <!-- Add a <div> element to display the arrivals -->
-            
-            <div id="main-container">
-                <!-- <div id="stop-title" class="text--heavy">
-                </div> -->
-                <div id="arrivals"></div>  
-                <div id="clock">
-                </div>
-
-            </div>
-        </div>
-    </div>
 </body>
 </html>
