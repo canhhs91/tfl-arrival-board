@@ -16,11 +16,13 @@
             const hours = now.getHours();
             const minutes = now.getMinutes();
             const seconds = now.getSeconds();
-            const ampm = hours >= 12 ? 'pm' : 'am';
-            const formattedTime = `${hours % 12}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`;
+            const ampm = hours >= 12 ? "PM" : "AM";
+            const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
+
+            const formattedTime = `${String(formattedHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${ampm}`;
+
             clockElement.textContent = formattedTime;
         }
-
         function updateUI() {
             $.get("/get_arrivals", function(data) {
                 // Update the UI with the received data
