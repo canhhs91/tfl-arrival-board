@@ -23,7 +23,7 @@
 }
 
 html {
-    font-size: 21px;
+    font-size: 40px;
     cursor: none;
 }
 
@@ -114,7 +114,7 @@ body {
     margin-right: 15px;
     float: left; /* Float line-name to the left */
     text-align: right; /* Text align right */
-    width: 120px;
+    width: 220px;
 }
 
 .destination {
@@ -149,6 +149,7 @@ body {
 #clock {
     text-align: center;
     font-family: "tfl-font-heavy", monospace;
+    font-size: 0.8rem;
 }
 
 @media screen and (max-width: 600px) {
