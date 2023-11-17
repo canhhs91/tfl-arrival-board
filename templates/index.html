@@ -98,15 +98,17 @@
                 activeTimetableIndex = (activeTimetableIndex + 1) % stopCount;
                 highlightActiveTimetable();
             });
+            // Initialize the UI on page load
+            updateUI();
+            // Initialize the clock on page load
+            updateClock();
+            
              // Periodically update the UI every 5 seconds
             setInterval(updateUI, 5000);
             // Periodically update the clock every second
             setInterval(updateClock, 1000);
             
-            // Initialize the UI on page load
-            updateUI();
-            // Initialize the clock on page load
-            updateClock();
+            
         });
     </script>
 
