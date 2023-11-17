@@ -132,6 +132,8 @@ body {
 }
 
 .time-to-station {
+    min-width: 150px;
+
     float: right; /* Float time-to-station to the right */
     text-align: right; /* Text align right */
 }
@@ -147,4 +149,10 @@ body {
 #clock {
     text-align: center;
     font-family: "tfl-font-heavy", monospace;
+}
+
+@media screen and (max-width: 600px) {
+    html {
+        font-size: 18px;
+    }
 }

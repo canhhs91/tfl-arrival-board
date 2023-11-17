@@ -76,6 +76,7 @@
                         destinationDiv.innerHTML = "<div class='destination-text'>" + arrival.destinationName + "</div>";
 
                         const timeToStationDiv = document.createElement("div");
+                        timeToStationDiv.classList.add("time-to-station");
                         timeToStationDiv.textContent = `${arrival.timeToStationMins}`;
 
                         // Append the divs to the arrivalItem
@@ -123,7 +124,7 @@
             updateClock();
             
                 // Periodically update the UI every 5 seconds
-            setInterval(updateUI, 5000);
+            setInterval(updateUI, 50000);
             // Periodically update the clock every second
             setInterval(updateClock, 1000);
             
