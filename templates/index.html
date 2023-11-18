@@ -127,7 +127,11 @@
             setInterval(updateUI, 5000);
             // Periodically update the clock every second
             setInterval(updateClock, 1000);
-            
+             
+            // Reload the page every 30 minutes (1800 seconds)
+             setInterval(function() {
+                location.reload();
+            }, 1800000);
         });
         
     </script>
