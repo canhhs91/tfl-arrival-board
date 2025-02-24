@@ -11,7 +11,7 @@ export default function LedContent() {
   const { data } = useQuery({
     queryKey: ["ARRIVALS"],
     queryFn: () => axios.get("/api/updateArrivals"),
-    refetchInterval: 5000,
+    refetchInterval: 1000,
   });
 
   const onChangeStop = () => {
@@ -29,7 +29,7 @@ export default function LedContent() {
       onClick={onChangeStop}
       className="h-[90vh] flex flex-col justify-center"
     >
-      <div id="arrivals" className="font-heavy">
+      <div id="arrivals" className="font-regular text-sm">
         <div className="timetable-container" key={stop?.stop_id}>
           <div className="stop-title arrivals-item text--heavy">
             {stop?.title}
