@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>TFL Arrivals</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+
+</head>
+<body>
+    <div class="led-matrix">
+        <div class="text text-regular">
+            <!-- Add a <div> element to display the arrivals -->
+            
+            <div id="main-container">
+                <!-- <div id="stop-title" class="text--heavy">
+                </div> -->
+                <div id="arrivals"></div>  
+                <div id="clock">
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        let activeTimetableIndex = 0;
+        let stopCount = 0;
+        
+        function updateClock() {
+            const clockElement = document.getElementById("clock");
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            const ampm = hours >= 12 ? "PM" : "AM";
+            const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
+
+            const formattedTime = `${String(formattedHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${ampm}`;
+
+            clockElement.textContent = formattedTime;
+        }
+        function updateUI() {
+            $.get("/get_arrivals", function(data) {
+                // Update the UI with the received data
+                // For example, you can update a <div> element with id "arrivals" with the data
+                const arrivalsContainer = document.getElementById("arrivals");
+                arrivalsContainer.innerHTML = ''; // Clear previous data
+                data.stops.forEach(function(data, index){
+                    stopContainer = document.createElement("div");
+                    stopContainer.classList.add("timetable-container");
+                    const arrivalsTitle = document.createElement("div");
+                    arrivalsTitle.classList.add("stop-title", "arrivals-item", "text--heavy");
+                   
+                    // Set the text content of arrivalsTitle to include the current time
+                    arrivalsTitle.textContent = `${data.title}`;
+
+                    stopContainer.appendChild(arrivalsTitle);
+
+                    data.arrivals.slice(0, 3).forEach(function(arrival, index) {
+                        const arrivalItem = document.createElement("div");
+                        arrivalItem.classList.add("arrival-item");
+                        // Create separate divs for lineName, destination, and timeToStation
+                        const orderDiv = document.createElement("div");
+                        orderDiv.classList.add("order");
+                        orderDiv.textContent = index + 1;
+
+                        // Create separate divs for lineName, destination, and timeToStation
+                        const lineNameDiv = document.createElement("div");
+                        lineNameDiv.classList.add("line-name");
+                        lineNameDiv.textContent = arrival.lineName;
+
+                        const destinationDiv = document.createElement("div");
+                        destinationDiv.classList.add("destination");
+                        destinationDiv.innerHTML = "<div class='destination-text'>" + arrival.destinationName + "</div>";
+
+                        const timeToStationDiv = document.createElement("div");
+                        timeToStationDiv.classList.add("time-to-station");
+                        timeToStationDiv.textContent = `${arrival.timeToStationMins}`;
+
+                        // Append the divs to the arrivalItem
+                        arrivalItem.appendChild(orderDiv);
+                        arrivalItem.appendChild(lineNameDiv);
+                        arrivalItem.appendChild(destinationDiv);
+                        arrivalItem.appendChild(timeToStationDiv);
+                        stopContainer.appendChild(arrivalItem);
+
+                    });
+                    arrivalsContainer.appendChild(stopContainer);
+                })
+                // Set stopsLength based on data.stops.length
+                stopCount = data.stops.length;
+
+                 // Highlight the active timetable-container
+                 highlightActiveTimetable();
+            });
+        }
+
+        function highlightActiveTimetable() {
+            const timetableContainers = document.querySelectorAll(".timetable-container");
+            timetableContainers.forEach((container, index) => {
+                if (index === activeTimetableIndex) {
+                    container.classList.add("active");
+                } else {
+                    container.classList.remove("active");
+                }
+            });
+        }
+
+       
+
+        $(document).ready(function() {
+            // Add a click event listener to the refresh button
+            $('#main-container').on('click', function() {
+                // Move to the next timetable-container on click
+                activeTimetableIndex = (activeTimetableIndex + 1) % stopCount;
+                highlightActiveTimetable();
+            });
+       
+            // Initialize the UI on page load
+            updateUI();
+            // Initialize the clock on page load
+            updateClock();
+            
+                // Periodically update the UI every 5 seconds
+            setInterval(updateUI, 5000);
+            // Periodically update the clock every second
+            setInterval(updateClock, 1000);
+             
+            // Reload the page every 30 minutes (1800 seconds)
+             setInterval(function() {
+                location.reload();
+            }, 1800000);
+        });
+        
+    </script>
+</body>
+</html>
