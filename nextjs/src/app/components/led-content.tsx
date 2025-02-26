@@ -6,7 +6,7 @@ import Clock from "./clock";
 import useLatLong from "@/hooks/useLatLong";
 import { getStopPoints } from "@/actions";
 import { QUERY_KEYS } from "@/constants";
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from "date-fns";
 import Arrivals from "./arrivals";
 
 export default function LedContent() {
@@ -19,9 +19,7 @@ export default function LedContent() {
   });
 
   const onChangeStop = () => {
-    setActiveTimetableIndex(
-      (prev) => (prev + 1) % (data?.stops?.length ?? 0)
-    );
+    setActiveTimetableIndex((prev) => (prev + 1) % (data?.stops?.length ?? 0));
   };
 
   const stop: StopData | undefined = useMemo(
@@ -40,13 +38,13 @@ export default function LedContent() {
           <div className="stop-title arrivals-item text--heavy">
             {stop?.title}
           </div>
-          {
+          {/* {
             dataUpdatedAt ?
               <div className="text-xs  text-[#ffc80a]  font-semibold">
                 Updated {formatDistanceToNow(dataUpdatedAt, { addSuffix: true })}
               </div>
               : null
-          }
+          } */}
           <Arrivals stop_id={stop?.stop_id} />
         </div>
       </div>
