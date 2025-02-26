@@ -112,7 +112,7 @@ body {
   margin-right: 35px;
   float: left; /* Float line-name to the left */
   text-align: right;
-  /* width: 100px; */
+  width: 100px;
 }
 
 .destination {
