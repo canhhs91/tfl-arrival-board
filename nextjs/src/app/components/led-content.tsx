@@ -8,9 +8,15 @@ import { getStopPoints } from "@/actions";
 import { QUERY_KEYS } from "@/constants";
 // import { formatDistanceToNow } from "date-fns";
 import Arrivals from "./arrivals";
+import { useSearchParams } from "next/navigation";
 
 export default function LedContent() {
-  const { latitude, longitude } = useLatLong();
+  // get "poscode" from url param
+  const searchParams = useSearchParams();
+
+  const postcode = searchParams.get("postcode");
+  //
+  const { latitude, longitude } = useLatLong(postcode);
   const [activeTimetableIndex, setActiveTimetableIndex] = useState<number>(0);
 
   const { data } = useQuery({

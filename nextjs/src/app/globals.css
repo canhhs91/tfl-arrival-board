@@ -99,7 +99,6 @@ body {
   width: 100%;
 }
 .order {
-  font-weight: bold;
   margin-right: 15px;
   float: left; /* Float line-name to the left */
   text-align: right; /* Text align right */
@@ -108,7 +107,6 @@ body {
 
 /* Add CSS styles for the elements within each arrival item */
 .line-name {
-  font-weight: bold;
   margin-right: 35px;
   float: left; /* Float line-name to the left */
   text-align: right;
