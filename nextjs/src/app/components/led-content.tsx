@@ -6,14 +6,14 @@ import Clock from "./clock";
 import useLatLong from "@/hooks/useLatLong";
 import { getStopPoints } from "@/actions";
 import { QUERY_KEYS } from "@/constants";
-import { formatDistanceToNow } from "date-fns";
+// import { formatDistanceToNow } from "date-fns";
 import Arrivals from "./arrivals";
 
 export default function LedContent() {
   const { latitude, longitude } = useLatLong();
   const [activeTimetableIndex, setActiveTimetableIndex] = useState<number>(0);
 
-  const { data, dataUpdatedAt } = useQuery({
+  const { data } = useQuery({
     queryKey: [QUERY_KEYS.STOPS, latitude, longitude],
     queryFn: () => getStopPoints({ lat: latitude, long: longitude }),
   });
