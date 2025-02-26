@@ -13,7 +13,7 @@ export default function Arrivals({ stop_id }: Props) {
     queryKey: [QUERY_KEYS.STOPS, stop_id],
     queryFn: () => getArrival(stop_id!),
     enabled: !!stop_id,
-    refetchInterval: 5000000,
+    refetchInterval: 5000,
   });
   if (isLoading) {
     return Array.from({ length: 3 }).map((_, index) => (
