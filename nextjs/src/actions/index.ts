@@ -13,8 +13,8 @@ export async function getStopPoints({ lat, long }: { lat: number | null, long: n
             {
                 params: {
                     stopTypes: ['NaptanPublicBusCoachTram'].join(','),
-                    lat: 51.516186970112685,
-                    lon: 0.03910865484794419,
+                    lat: lat,
+                    lon: long,
                     radius: 500,
                 }
             }
