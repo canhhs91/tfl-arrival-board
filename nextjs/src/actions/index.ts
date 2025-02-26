@@ -20,7 +20,7 @@ export async function getStopPoints({ lat, long }: { lat: number | null, long: n
             }
         );
 
-        const stopPoints: StopData[] = response.data.stopPoints?.slice(0, 4)?.map((stopPoint, index) => ({
+        const stopPoints: StopData[] = response.data.stopPoints?.slice(0, 6)?.map((stopPoint, index) => ({
             arrivals: [],
             order: index,
             stop_id: stopPoint.id,
