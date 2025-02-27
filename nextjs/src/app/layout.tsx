@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Providers from "./providers";
+import { Analytics } from "@vercel/analytics/react";
 
 const tflFont = localFont({
   src: [
@@ -42,6 +43,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${tflFont.className} antialiased`}>
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );
