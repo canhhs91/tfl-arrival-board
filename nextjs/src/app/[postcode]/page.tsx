@@ -3,7 +3,7 @@ import { useParams } from "next/navigation";
 import { Suspense } from "react";
 import LedContent from "../components/led-content";
 
-const Page = () => {
+const PostcodePage = () => {
   const { postcode } = useParams();
   return (
     <div className="led-matrix">
@@ -16,4 +16,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default PostcodePage;

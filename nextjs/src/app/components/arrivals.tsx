@@ -9,11 +9,15 @@ type Props = {
 };
 
 export default function Arrivals({ stop_id }: Props) {
-  const { data: arrivals, isLoading } = useQuery({
+  const {
+    data: arrivals,
+    isLoading,
+    isFetching,
+  } = useQuery({
     queryKey: [QUERY_KEYS.STOPS, stop_id],
     queryFn: () => getArrival(stop_id!),
     enabled: !!stop_id,
-    refetchInterval: 5000,
+    refetchInterval: 10000,
   });
   if (isLoading) {
     return Array.from({ length: 3 }).map((_, index) => (
@@ -31,7 +35,7 @@ export default function Arrivals({ stop_id }: Props) {
       </div>
     ));
   }
-  return arrivals?.slice(0, 6).map((arrival, index) => (
+  return arrivals?.slice(0, 10).map((arrival, index) => (
     <div key={index} className="arrival-item">
       <div className="order">{index + 1}</div>
       <div className="destination">

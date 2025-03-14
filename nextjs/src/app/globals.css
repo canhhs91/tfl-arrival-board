@@ -137,14 +137,6 @@ body {
   float: right; /* Float time-to-station to the right */
   text-align: right; /* Text align right */
 }
-.stop-title {
-  margin: 10px;
-  text-align: center;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
-}
 
 #clock {
   text-align: center;

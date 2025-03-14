@@ -27,8 +27,17 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
     () => data?.stops[activeTimetableIndex],
     [data, activeTimetableIndex]
   );
-  console.log(stop);
 
+  // Custom House (stop G)
+  //  split Custom House and stop G
+  let [title, stopLetter] = [stop?.title, ""];
+
+  const pattern = /(.*)\s(\(Stop\s[A-Z]\))/;
+  const match = stop?.title.match(pattern);
+  console.log("canhtest match", match);
+  if (match) {
+    [, title, stopLetter] = match;
+  }
   return (
     <div
       onClick={onChangeStop}
@@ -36,8 +45,11 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
     >
       <div id="arrivals" className="font-regular text-sm">
         <div className="timetable-container" key={stop?.stop_id}>
-          <div className="stop-title arrivals-item text--heavy">
-            {stop?.title}
+          <div className="gap-1 flex flex-row justify-center w-full">
+            <span className="text--heavy overflow-hidden text-ellipsis">
+              {title}
+            </span>
+            <span className=" text--heavy">{stopLetter}</span>
           </div>
           {/* {
             dataUpdatedAt ?

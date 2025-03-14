@@ -28,7 +28,6 @@ export async function getStopPoints({ lat, long }: { lat: number | null, long: n
             stop_id: stopPoint.id,
             title: `${stopPoint.commonName} (${stopPoint.indicator})`
         })) ?? [];
-
         return { stops: stopPoints };
     } catch (error) {
         throw new Error(error as string);
