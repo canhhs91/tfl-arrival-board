@@ -1,159 +1,160 @@
 @font-face {
-    font-family: "tfl-font-regular";
-    src: url("/static/tfl-regular.ttf") format("truetype");
-    font-weight: normal;
+  font-family: "tfl-font-regular";
+  src: url("/static/tfl-regular.ttf") format("truetype");
+  font-weight: normal;
 }
 
 @font-face {
-    font-family: "tfl-font-heavy";
-    src: url("/static/tfl-heavy.ttf") format("truetype");
-    font-weight: normal;
+  font-family: "tfl-font-heavy";
+  src: url("/static/tfl-heavy.ttf") format("truetype");
+  font-weight: normal;
 }
 
 @font-face {
-    font-family: "tfl-font-bold";
-    src: url("/static/tfl-bold.ttf") format("truetype");
-    font-weight: normal;
+  font-family: "tfl-font-bold";
+  src: url("/static/tfl-bold.ttf") format("truetype");
+  font-weight: normal;
 }
 
 @font-face {
-    font-family: "tfl-font-medium";
-    src: url("/static/tfl-medium.ttf") format("truetype");
-    font-weight: normal;
+  font-family: "tfl-font-medium";
+  src: url("/static/tfl-medium.ttf") format("truetype");
+  font-weight: normal;
 }
 
 html {
-    font-size: 40px;
-    cursor: none;
+  font-size: 40px;
+  cursor: none;
 }
 
 body {
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    width: 100vw;
-    background-color: #000;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #000;
 }
 
 .led-matrix {
-    display: inline-block;
-    background-color: #000;
+  display: inline-block;
+  background-color: #000;
 }
 
 .text {
-    font-family: "tfl-font-regular", monospace;
-    color: #ffc80a;
-    font-size: 1.5rem;
-    white-space: nowrap;
+  font-family: "tfl-font-regular", monospace;
+  color: #ffc80a;
+  font-size: 1.5rem;
+  white-space: nowrap;
 }
 
 .text--heavy {
-    font-family: "tfl-font-heavy", monospace;
-    font-weight: normal;
+  font-family: "tfl-font-heavy", monospace;
+  font-weight: normal;
 }
 
 .text--bold-numeric {
-    font-family: "tfl-font-bold", monospace;
-    font-weight: normal;
+  font-family: "tfl-font-bold", monospace;
+  font-weight: normal;
 }
 
 .text--medium {
-    font-family: "tfl-font-medium", monospace;
-    font-weight: normal;
+  font-family: "tfl-font-medium", monospace;
+  font-weight: normal;
 }
 
 .text--regular {
-    font-family: "tfl-font-regular", monospace;
-    font-weight: normal;
+  font-family: "tfl-font-regular", monospace;
+  font-weight: normal;
 }
 
 #main-container {
-    height: 90vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .timetable-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100vw;
-    padding: 0 30px 10px 20px;
-    box-sizing: border-box;
-    display: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  padding: 0 30px 10px 20px;
+  box-sizing: border-box;
+  display: none;
 }
 
 .timetable-container.active {
-    display: flex;
+  display: flex;
 }
 
 /* Add CSS styles for the individual arrival items */
 .arrival-item {
-    display: flex; /* Display arrivals horizontally */
-    align-items: center; /* Center items vertically */
-    justify-content: space-between; /* Space evenly between items */
-    flex-direction: row; /* Display items horizontally */
-    margin: 8px;
-    width: 100%;
+  display: flex; /* Display arrivals horizontally */
+  align-items: center; /* Center items vertically */
+  justify-content: space-between; /* Space evenly between items */
+  flex-direction: row; /* Display items horizontally */
+  margin: 8px;
+  width: 100%;
 }
 .order {
-    font-weight: bold;
-    margin-right: 15px;
-    float: left; /* Float line-name to the left */
-    text-align: right; /* Text align right */
-    width: 40px;
+  font-weight: bold;
+  margin-right: 15px;
+  float: left; /* Float line-name to the left */
+  text-align: right; /* Text align right */
+  width: 40px;
 }
 
 /* Add CSS styles for the elements within each arrival item */
 .line-name {
-    font-weight: bold;
-    margin-right: 15px;
-    float: left; /* Float line-name to the left */
-    text-align: right; /* Text align right */
-    width: 220px;
+  font-weight: bold;
+  margin-right: 15px;
+  float: left; /* Float line-name to the left */
+  text-align: right; /* Text align right */
+  width: 220px;
 }
 
 .destination {
-    flex: 1; /* Stretch destination to fill available space */
-    margin-right: 25px;
-    margin-left: 35px;
-    text-align: left; /* Text align left */
-    overflow: hidden; /* Hide overflow text */
+  flex: 1; /* Stretch destination to fill available space */
+  margin-right: 25px;
+  margin-left: 35px;
+  text-align: left; /* Text align left */
+  overflow: hidden; /* Hide overflow text */
 }
 
 .destination-text {
-    white-space: nowrap; /* Prevent text from wrapping */
-    overflow: hidden; /* Hide overflow text */
-    text-overflow: ellipsis; /* Display ellipsis for clipped text */
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflow text */
+  text-overflow: ellipsis; /* Display ellipsis for clipped text */
+  /* don't capitalized */
 }
 
 .time-to-station {
-    min-width: 150px;
+  min-width: 150px;
 
-    float: right; /* Float time-to-station to the right */
-    text-align: right; /* Text align right */
+  float: right; /* Float time-to-station to the right */
+  text-align: right; /* Text align right */
 }
 .stop-title {
-    margin: 10px;
-    text-align: center;
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
+  margin: 10px;
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
 }
 
 #clock {
-    text-align: center;
-    font-family: "tfl-font-heavy", monospace;
-    font-size: 0.8rem;
+  text-align: center;
+  font-family: "tfl-font-heavy", monospace;
+  font-size: 0.8rem;
 }
 
 @media screen and (max-width: 600px) {
-    html {
-        font-size: 18px;
-    }
+  html {
+    font-size: 18px;
+  }
 }
