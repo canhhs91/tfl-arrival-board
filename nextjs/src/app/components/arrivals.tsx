@@ -9,11 +9,7 @@ type Props = {
 };
 
 export default function Arrivals({ stop_id }: Props) {
-  const {
-    data: arrivals,
-    isLoading,
-    isFetching,
-  } = useQuery({
+  const { data: arrivals, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.STOPS, stop_id],
     queryFn: () => getArrival(stop_id!),
     enabled: !!stop_id,
