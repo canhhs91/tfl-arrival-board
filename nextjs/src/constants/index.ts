@@ -31,4 +31,5 @@ export const STOP_POINT_DEFAULT: StopData[] = [
 export const QUERY_KEYS = {
     STOPS: 'stops',
     ARRIVALS: 'arrivals',
+    SEARCH: 'search',
 } as const;

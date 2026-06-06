@@ -11,12 +11,12 @@ export const formatArrivalTime = (timeToStation: number): string => {
     return `${Math.round(timeToStation / 60)} mins`;
 };
 
-const STOP_TITLE_PATTERN = /(.*)\s(\(Stop\s[A-Z]\))/;
+const STOP_TITLE_PATTERN = /(.*)\s\((Stop\s[A-Z0-9]+)\)/;
 
 /**
  * Splits a TfL stop title such as "Sullivan Avenue (Stop K)" into its name and
- * stop letter. Returns the whole title as `name` (and an empty letter) when the
- * "(Stop X)" suffix is absent.
+ * stop letter ("Stop K", without the parentheses). Returns the whole title as
+ * `name` (and an empty letter) when the "(Stop X)" suffix is absent.
  */
 export const parseStopTitle = (
     title: string | undefined

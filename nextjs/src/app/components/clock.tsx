@@ -10,13 +10,11 @@ export default function Clock() {
       const hours = now.getHours();
       const minutes = now.getMinutes();
       const seconds = now.getSeconds();
-      const ampm = hours >= 12 ? "PM" : "AM";
-      const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
       setClockTime(
-        `${String(formattedHours).padStart(2, "0")}:${String(minutes).padStart(
+        `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
           2,
           "0"
-        )}:${String(seconds).padStart(2, "0")} ${ampm}`
+        )}:${String(seconds).padStart(2, "0")}`
       );
     };
 
@@ -28,7 +26,7 @@ export default function Clock() {
   return (
     <div
       id="clock"
-      className="text-center text-sm font-medium tabular-nums tracking-wide text-tfl-muted"
+      className="text-center text-base font-bold tabular-nums tracking-wide text-tfl-amber"
       suppressHydrationWarning
     >
       {clockTime}

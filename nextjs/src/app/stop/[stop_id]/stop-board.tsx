@@ -36,7 +36,7 @@ export default function StopBoard() {
         </Link>
         <Roundel size={26} className="shrink-0" />
         <div className="min-w-0">
-          <h1 className="truncate text-lg font-semibold leading-tight text-white">
+          <h1 className="line-clamp-2 text-lg font-semibold leading-tight text-white">
             {name}
           </h1>
           {stopLetter ? (

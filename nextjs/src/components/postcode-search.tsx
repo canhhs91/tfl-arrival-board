@@ -8,9 +8,13 @@ type Props = {
   initial?: string;
 };
 
+// Loose UK postcode shape, tested against the space-stripped value.
+const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/;
+
 /**
- * Postcode entry that routes to the existing `/[postcode]` view, which resolves
- * coordinates via useLatLong. Normalizes input (uppercase, no spaces).
+ * Single entry box that detects a UK postcode vs a free-text stop name.
+ * Postcodes route to `/[postcode]` (nearby stops); anything else routes to the
+ * `/search` results page (search by stop name).
  */
 export default function PostcodeSearch({ initial = "" }: Props) {
   const router = useRouter();
@@ -18,9 +22,14 @@ export default function PostcodeSearch({ initial = "" }: Props) {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const postcode = value.replace(/\s+/g, "").toUpperCase();
-    if (!postcode) return;
-    router.push(`/${encodeURIComponent(postcode)}`);
+    const raw = value.trim();
+    if (!raw) return;
+    const compact = raw.replace(/\s+/g, "").toUpperCase();
+    if (POSTCODE_RE.test(compact)) {
+      router.push(`/${encodeURIComponent(compact)}`);
+    } else {
+      router.push(`/search?q=${encodeURIComponent(raw)}`);
+    }
   };
 
   return (
@@ -32,11 +41,10 @@ export default function PostcodeSearch({ initial = "" }: Props) {
       <input
         type="text"
         inputMode="text"
-        autoComplete="postal-code"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Enter a postcode"
-        aria-label="Postcode"
+        placeholder="Postcode or stop name"
+        aria-label="Postcode or stop name"
         className="w-full rounded-xl border border-tfl-border bg-tfl-card py-3 pl-10 pr-3 text-base text-white placeholder:text-tfl-muted outline-none focus:border-tfl-amber"
       />
     </form>

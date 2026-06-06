@@ -1,26 +1,19 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
-import Link from "next/link";
-import { ChevronRight, Clock as ClockIcon } from "lucide-react";
+import { Clock as ClockIcon, LocateFixed } from "lucide-react";
 import Clock from "./clock";
 import useLatLong from "@/hooks/useLatLong";
 import useRecentStops from "@/hooks/useRecentStops";
 import { getStopPoints } from "@/actions";
 import { QUERY_KEYS } from "@/constants";
-import { parseStopTitle } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import Roundel from "@/components/roundel";
 import PostcodeSearch from "@/components/postcode-search";
-
-function stopHref(stop_id: string, title: string) {
-  return `/stop/${encodeURIComponent(stop_id)}?title=${encodeURIComponent(
-    title
-  )}`;
-}
+import StopRow from "@/components/stop-row";
 
 export default function LedContent({ postcode }: { postcode: string | null }) {
-  const { latitude, longitude } = useLatLong(postcode);
+  const { latitude, longitude, error, locating, locate } = useLatLong(postcode);
   const { recents } = useRecentStops();
 
   const { data, isLoading } = useQuery({
@@ -29,6 +22,10 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
   });
 
   const stops = data?.stops ?? [];
+
+  // Avoid showing a recent stop that's already in the nearby list.
+  const nearbyIds = new Set(stops.map((s) => s.stop_id));
+  const filteredRecents = recents.filter((r) => !nearbyIds.has(r.stop_id));
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -42,32 +39,32 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
 
       <PostcodeSearch initial={postcode ?? ""} />
 
-      {recents.length > 0 ? (
+      <button
+        type="button"
+        onClick={locate}
+        disabled={locating}
+        className="mt-2 flex items-center gap-1.5 self-start rounded-lg px-1 py-1 text-sm text-tfl-amber disabled:opacity-60"
+      >
+        <LocateFixed size={15} className={locating ? "animate-pulse" : ""} />
+        {locating ? "Locating…" : "Use my location"}
+      </button>
+
+      {error && stops.length === 0 ? (
+        <p className="pt-2 text-sm text-tfl-muted">
+          Couldn’t get your location. Enter a postcode or stop name above, or try
+          again.
+        </p>
+      ) : null}
+
+      {filteredRecents.length > 0 ? (
         <section className="pt-5">
           <h2 className="flex items-center gap-1.5 pb-2 text-xs font-medium uppercase tracking-wide text-tfl-muted">
             <ClockIcon size={13} /> Recent stops
           </h2>
           <div className="flex flex-col gap-2">
-            {recents.map((r) => {
-              const { name, stopLetter } = parseStopTitle(r.title);
-              return (
-                <Link
-                  key={r.stop_id}
-                  href={stopHref(r.stop_id, r.title)}
-                  className="flex items-center gap-2 rounded-xl border border-tfl-border bg-tfl-card px-3 py-2.5 active:bg-tfl-card-hover"
-                >
-                  <span className="flex-1 truncate text-base text-white">
-                    {name}
-                  </span>
-                  {stopLetter ? (
-                    <span className="shrink-0 text-sm text-tfl-amber">
-                      {stopLetter}
-                    </span>
-                  ) : null}
-                  <ChevronRight size={18} className="shrink-0 text-tfl-muted" />
-                </Link>
-              );
-            })}
+            {filteredRecents.map((r) => (
+              <StopRow key={r.stop_id} stop_id={r.stop_id} title={r.title} />
+            ))}
           </div>
         </section>
       ) : null}
@@ -92,29 +89,13 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              {stops.map((stop) => {
-                const { name, stopLetter } = parseStopTitle(stop.title);
-                return (
-                  <Link
-                    key={stop.stop_id}
-                    href={stopHref(stop.stop_id, stop.title)}
-                    className="flex items-center gap-2 rounded-xl border border-tfl-border bg-tfl-card px-3 py-3 active:bg-tfl-card-hover"
-                  >
-                    <span className="flex-1 truncate text-base text-white">
-                      {name}
-                    </span>
-                    {stopLetter ? (
-                      <span className="shrink-0 text-sm text-tfl-amber">
-                        {stopLetter}
-                      </span>
-                    ) : null}
-                    <ChevronRight
-                      size={18}
-                      className="shrink-0 text-tfl-muted"
-                    />
-                  </Link>
-                );
-              })}
+              {stops.map((stop) => (
+                <StopRow
+                  key={stop.stop_id}
+                  stop_id={stop.stop_id}
+                  title={stop.title}
+                />
+              ))}
             </div>
           )}
         </div>

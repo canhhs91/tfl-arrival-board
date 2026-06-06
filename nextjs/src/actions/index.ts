@@ -3,7 +3,16 @@
 import { STOP_POINT_DEFAULT } from "@/constants";
 import { apiTflClient } from "@/lib/api-client";
 import { formatArrivalTime } from "@/lib/utils";
-import { Arrival, ResStopPointLatlon, StopData } from "@/types";
+import { Arrival, ResStopPointLatlon, StopData, StopPoint } from "@/types";
+
+type SearchResponse = {
+    matches?: { id: string; name: string; modes?: string[] }[];
+};
+
+const stopTitle = (commonName?: string, indicator?: string) =>
+    indicator ? `${commonName} (${indicator})` : `${commonName ?? ""}`;
+
+const isBus = (modes?: string[]) => !!modes?.includes("bus");
 
 export async function getStopPoints({ lat, long }: { lat: number | null, long: number | null }): Promise<{ stops: StopData[] }> {
     try {
@@ -31,6 +40,61 @@ export async function getStopPoints({ lat, long }: { lat: number | null, long: n
         return { stops: stopPoints };
     } catch (error) {
         throw new Error(error as string);
+    }
+}
+
+export async function searchStopsByName(query: string): Promise<{ stops: StopData[] }> {
+    const q = query.trim();
+    if (!q) return { stops: [] };
+    try {
+        const search = await apiTflClient.get<SearchResponse>(
+            `/StopPoint/Search/${encodeURIComponent(q)}`,
+            { params: { modes: "bus", maxResults: 6 } }
+        );
+        const matches = search.data.matches ?? [];
+
+        // Search returns a mix of parent hubs (no arrivals) and individual
+        // stops. Resolve each match to arrival-capable individual stops by
+        // expanding parents into their bus children.
+        const details = await Promise.all(
+            matches.map((m) =>
+                apiTflClient
+                    .get<StopPoint>(`/StopPoint/${m.id}`)
+                    .then((r) => r.data)
+                    .catch(() => null)
+            )
+        );
+
+        const seen = new Set<string>();
+        const stops: StopData[] = [];
+        for (const d of details) {
+            if (!d) continue;
+            const busChildren = ((d.children ?? []) as StopPoint[]).filter((c) =>
+                isBus(c.modes)
+            );
+            const leaves =
+                busChildren.length > 0
+                    ? busChildren.map((c) => ({
+                          stop_id: c.naptanId ?? c.id,
+                          title: stopTitle(d.commonName, c.indicator),
+                      }))
+                    : isBus(d.modes)
+                    ? [
+                          {
+                              stop_id: d.naptanId ?? d.id,
+                              title: stopTitle(d.commonName, d.indicator),
+                          },
+                      ]
+                    : [];
+            for (const leaf of leaves) {
+                if (!leaf.stop_id || seen.has(leaf.stop_id)) continue;
+                seen.add(leaf.stop_id);
+                stops.push({ order: stops.length, arrivals: [], ...leaf });
+            }
+        }
+        return { stops: stops.slice(0, 15) };
+    } catch {
+        return { stops: [] };
     }
 }
 
