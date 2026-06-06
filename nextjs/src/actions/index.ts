@@ -3,7 +3,7 @@
 import { STOP_POINT_DEFAULT } from "@/constants";
 import { apiTflClient } from "@/lib/api-client";
 import { formatArrivalTime } from "@/lib/utils";
-import { Arrival, ResStopPointLatlon, StopData, StopPoint } from "@/types";
+import { Arrival, NextStop, ResStopPointLatlon, StopData, StopPoint } from "@/types";
 
 type SearchResponse = {
     matches?: { id: string; name: string; modes?: string[] }[];
@@ -95,6 +95,51 @@ export async function searchStopsByName(query: string): Promise<{ stops: StopDat
         return { stops: stops.slice(0, 15) };
     } catch {
         return { stops: [] };
+    }
+}
+
+type RouteSequenceResponse = {
+    stopPointSequences: { stopPoint: { id: string; name: string }[] }[];
+    orderedLineRoutes: { naptanIds: string[] }[];
+};
+
+export async function getNextStops(lineId: string, currentStopId: string): Promise<NextStop[]> {
+    try {
+        const [inbound, outbound] = await Promise.all([
+            apiTflClient.get<RouteSequenceResponse>(`/Line/${lineId}/Route/Sequence/inbound`).catch(() => null),
+            apiTflClient.get<RouteSequenceResponse>(`/Line/${lineId}/Route/Sequence/outbound`).catch(() => null),
+        ]);
+
+        const extract = (res: typeof inbound) => {
+            if (!res) return [];
+            // Build id->name from stopPointSequences[].stopPoint
+            const nameMap: Record<string, string> = {};
+            for (const seq of res.data.stopPointSequences ?? []) {
+                for (const sp of seq.stopPoint ?? []) {
+                    nameMap[sp.id] = sp.name;
+                }
+            }
+            // Ordered stop IDs live in orderedLineRoutes[].naptanIds
+            return (res.data.orderedLineRoutes ?? []).map(r => ({
+                naptanIds: r.naptanIds,
+                nameMap,
+            }));
+        };
+
+        const allRoutes = [...extract(inbound), ...extract(outbound)];
+
+        for (const { naptanIds, nameMap } of allRoutes) {
+            const currentIdx = naptanIds.indexOf(currentStopId);
+            if (currentIdx === -1) continue;
+            return naptanIds.slice(currentIdx + 1).map(id => ({
+                naptanId: id,
+                name: nameMap[id] ?? id,
+            }));
+        }
+
+        return [];
+    } catch {
+        return [];
     }
 }
 

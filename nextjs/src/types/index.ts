@@ -4,6 +4,12 @@ export interface Arrival {
     timeToStation: number;
     timeToStationMins?: string;
     destinationName?: string;
+    destinationNaptanId?: string;
+}
+
+export interface NextStop {
+    naptanId: string;
+    name: string;
 }
 
 export interface StopData {

@@ -32,4 +32,5 @@ export const QUERY_KEYS = {
     STOPS: 'stops',
     ARRIVALS: 'arrivals',
     SEARCH: 'search',
+    NEXT_STOPS: 'next_stops',
 } as const;
