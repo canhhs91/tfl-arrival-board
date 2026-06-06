@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Providers from "./providers";
+import SWRegister from "@/components/sw-register";
 import { Analytics } from "@vercel/analytics/react";
 
 const tflFont = localFont({
@@ -32,6 +33,14 @@ const tflFont = localFont({
 export const metadata: Metadata = {
   title: "London Bus Arrivals Around You",
   description: "Find out the next bus arrivals around you in London",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Bus Arrivals",
+  },
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
@@ -49,6 +58,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${tflFont.className} antialiased`}>
         <Providers>{children}</Providers>
+        <SWRegister />
         <Analytics />
       </body>
     </html>
