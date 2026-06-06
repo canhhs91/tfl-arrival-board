@@ -1,13 +1,13 @@
 "use client";
 
-import { searchStopsByName } from "@/actions";
+import { searchStops } from "@/actions";
 import PostcodeSearch from "@/components/postcode-search";
 import Roundel from "@/components/roundel";
 import StopRow from "@/components/stop-row";
 import { Skeleton } from "@/components/ui/skeleton";
 import { QUERY_KEYS } from "@/constants";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React from "react";
@@ -18,11 +18,12 @@ export default function SearchResults() {
 
   const { data, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.SEARCH, query],
-    queryFn: () => searchStopsByName(query),
+    queryFn: () => searchStops(query),
     enabled: query.length > 0,
   });
 
   const stops = data?.stops ?? [];
+  const location = data?.location;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -44,8 +45,16 @@ export default function SearchResults() {
 
       <section className="flex min-h-0 flex-1 flex-col pt-5">
         <h2 className="truncate pb-2 text-xs font-medium uppercase tracking-wide text-tfl-muted">
-          {query ? `Results for “${query}”` : "Enter a stop name"}
+          {query ? `Results for "${query}"` : "Enter a stop name"}
         </h2>
+
+        {location && !isLoading && (
+          <div className="mb-3 flex items-center gap-2 rounded-xl border border-tfl-border bg-tfl-card px-3 py-2.5">
+            <MapPin size={14} className="shrink-0 text-tfl-amber" />
+            <span className="text-sm text-white">{location}</span>
+          </div>
+        )}
+
         <div className="flex-1 overflow-y-auto">
           {query && isLoading ? (
             <div className="flex flex-col gap-2">
@@ -58,7 +67,7 @@ export default function SearchResults() {
             </div>
           ) : query && stops.length === 0 ? (
             <div className="rounded-xl border border-tfl-border bg-tfl-card p-6 text-center text-tfl-muted">
-              No bus stops found for “{query}”.
+              No bus stops found for &ldquo;{query}&rdquo;.
             </div>
           ) : (
             <div className="flex flex-col gap-2">

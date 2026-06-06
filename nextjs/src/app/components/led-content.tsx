@@ -1,20 +1,19 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import React, { useState } from "react";
 import { ChevronDown, Clock as ClockIcon, LocateFixed } from "lucide-react";
 import Clock from "./clock";
 import useLatLong from "@/hooks/useLatLong";
 import useRecentStops from "@/hooks/useRecentStops";
-import { getStopPoints, searchStopsByName } from "@/actions";
+import { getStopPoints } from "@/actions";
 import { QUERY_KEYS } from "@/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import Roundel from "@/components/roundel";
-import PostcodeSearch from "@/components/postcode-search";
+import LocationSearch from "@/components/location-search";
 import StopRow from "@/components/stop-row";
 import ThemeToggle from "@/components/theme-toggle";
 import { useTheme } from "@/contexts/theme-context";
-
-const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/;
 
 export default function LedContent({ postcode }: { postcode: string | null }) {
   const { latitude, longitude, error, locating, locate } = useLatLong(postcode);
@@ -22,69 +21,72 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
   const { theme } = useTheme();
   const isModern = theme === "modern";
 
-  const [inputValue, setInputValue] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState<{
+    lat: number;
+    lon: number;
+    name: string;
+  } | null>(null);
 
-  useEffect(() => {
-    const raw = inputValue.trim();
-    const isPostcode = POSTCODE_RE.test(raw.replace(/\s+/g, "").toUpperCase());
-    const t = setTimeout(() => setSearchQuery(raw.length > 1 && !isPostcode ? raw : ""), 300);
-    return () => clearTimeout(t);
-  }, [inputValue]);
+  const handleLocationSelect = (lat: number, lon: number, name: string) => {
+    setSelectedLocation({ lat, lon, name });
+  };
 
-  const { data, isLoading: nearbyLoading } = useQuery({
-    queryKey: [QUERY_KEYS.STOPS, latitude, longitude],
-    queryFn: () => getStopPoints({ lat: latitude, long: longitude }),
-    enabled: !searchQuery,
+  const handleLocationClear = () => {
+    setSelectedLocation(null);
+  };
+
+  const activeLat = selectedLocation?.lat ?? latitude;
+  const activeLon = selectedLocation?.lon ?? longitude;
+
+  const { data, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.STOPS, activeLat, activeLon],
+    queryFn: () => getStopPoints({ lat: activeLat, long: activeLon }),
+    enabled: activeLat !== null && activeLon !== null,
   });
 
-  const { data: searchData, isLoading: searchLoading } = useQuery({
-    queryKey: [QUERY_KEYS.SEARCH, searchQuery],
-    queryFn: () => searchStopsByName(searchQuery),
-    enabled: searchQuery.length > 1,
-  });
-
-  const nearbyStops = data?.stops ?? [];
-  const searchStops = searchData?.stops ?? [];
+  const stops = data?.stops ?? [];
   const [recentsOpen, setRecentsOpen] = useState(false);
 
-  const isSearching = searchQuery.length > 1;
-  const isLoading = isSearching ? searchLoading : nearbyLoading;
-  const stops = isSearching ? searchStops : nearbyStops;
+  const sectionLabel = selectedLocation
+    ? `Stops near ${selectedLocation.name}`
+    : "Nearby stops";
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <header className="flex items-center gap-2 pb-4">
-        <Roundel size={28} className="shrink-0" />
-        <h1 className={`flex-1 text-white ${isModern ? "text-2xl font-bold" : "text-lg font-semibold"}`}>
-          Bus arrivals
-        </h1>
+        <Link href="/" aria-label="Home" className="flex flex-1 items-center gap-2">
+          <Roundel size={28} className="shrink-0" />
+          <h1 className={`text-white ${isModern ? "text-2xl font-bold" : "text-lg font-semibold"}`}>
+            Bus arrivals
+          </h1>
+        </Link>
         <ThemeToggle />
         <Clock />
       </header>
 
-      <PostcodeSearch initial={postcode ?? ""} onValueChange={setInputValue} />
+      <LocationSearch onSelect={handleLocationSelect} onClear={handleLocationClear} />
 
-      <button
-        type="button"
-        onClick={locate}
-        disabled={locating}
-        className="mt-2 flex items-center gap-1.5 self-start rounded-lg px-1 py-1 text-sm text-tfl-amber disabled:opacity-60"
-      >
-        <LocateFixed size={15} className={locating ? "animate-pulse" : ""} />
-        {locating ? "Locating…" : "Use my location"}
-      </button>
+      {!selectedLocation && (
+        <button
+          type="button"
+          onClick={locate}
+          disabled={locating}
+          className="mt-2 flex items-center gap-1.5 self-start rounded-lg px-1 py-1 text-sm text-tfl-amber disabled:opacity-60"
+        >
+          <LocateFixed size={15} className={locating ? "animate-pulse" : ""} />
+          {locating ? "Locating…" : "Use my location"}
+        </button>
+      )}
 
-      {error && nearbyStops.length === 0 && !isSearching ? (
+      {error && stops.length === 0 && !selectedLocation ? (
         <p className="pt-2 text-sm text-tfl-muted">
-          Couldn't get your location. Enter a postcode or stop name above, or try
-          again.
+          Could not get your location. Enter a place name above, or try again.
         </p>
       ) : null}
 
       <section className="flex min-h-0 flex-1 flex-col pt-5">
         <h2 className="pb-2 text-xs font-medium uppercase tracking-wide text-tfl-muted">
-          {isSearching ? `Results for "${searchQuery}"` : "Nearby stops"}
+          {sectionLabel}
         </h2>
         <div className="flex-1 overflow-y-auto">
           {isLoading ? (
@@ -95,7 +97,9 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
             </div>
           ) : stops.length === 0 ? (
             <div className="rounded-xl border border-tfl-border bg-tfl-card p-6 text-center text-tfl-muted">
-              {isSearching ? `No stops found for "${searchQuery}".` : "No nearby stops found. Try another postcode."}
+              {selectedLocation
+                ? "No bus stops found near this location."
+                : "No nearby stops found. Try a different location."}
             </div>
           ) : (
             <div className="flex flex-col gap-2">
@@ -107,7 +111,7 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
         </div>
       </section>
 
-      {recents.length > 0 && !isSearching ? (
+      {recents.length > 0 && !selectedLocation ? (
         <section className="pt-5">
           <button
             type="button"

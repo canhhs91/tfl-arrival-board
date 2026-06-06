@@ -44,8 +44,8 @@ export default function PostcodeSearch({ initial = "", onValueChange }: Props) {
         inputMode="text"
         value={value}
         onChange={(e) => { setValue(e.target.value); onValueChange?.(e.target.value); }}
-        placeholder="Postcode or stop name"
-        aria-label="Postcode or stop name"
+        placeholder="Where are you now?"
+        aria-label="Where are you now?"
         className="w-full rounded-xl border border-tfl-border bg-tfl-card py-3 pl-10 pr-3 text-base text-white placeholder:text-tfl-muted outline-none focus:border-tfl-amber"
       />
     </form>

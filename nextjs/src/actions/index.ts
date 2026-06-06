@@ -98,6 +98,38 @@ export async function searchStopsByName(query: string): Promise<{ stops: StopDat
     }
 }
 
+// Geocode arbitrary free text (e.g. "gooseley playing field") to its first
+// match's coordinates via Nominatim, then return the bus stops nearby.
+async function geocodeToNearbyStops(query: string): Promise<{ stops: StopData[]; location: string | null }> {
+    try {
+        const res = await fetch(
+            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=gb&format=json&addressdetails=1&limit=1`,
+            { headers: { "User-Agent": "tfl-arrival-board/1.0" } }
+        );
+        const data = (await res.json()) as NominatimResult[];
+        const first = data[0];
+        if (!first) return { stops: [], location: null };
+        const { stops } = await getStopPoints({
+            lat: parseFloat(first.lat),
+            long: parseFloat(first.lon),
+        });
+        return { stops, location: formatNominatimName(first) };
+    } catch {
+        return { stops: [], location: null };
+    }
+}
+
+// Free-text search that first tries TfL stop names, then falls back to
+// geocoding the query to a place and returning nearby bus stops.
+export async function searchStops(query: string): Promise<{ stops: StopData[]; location?: string }> {
+    const q = query.trim();
+    if (!q) return { stops: [] };
+    const byName = await searchStopsByName(q);
+    if (byName.stops.length > 0) return byName;
+    const { stops, location } = await geocodeToNearbyStops(q);
+    return { stops, ...(location ? { location } : {}) };
+}
+
 type RouteSequenceResponse = {
     stopPointSequences: { stopPoint: { id: string; name: string }[] }[];
     orderedLineRoutes: { naptanIds: string[] }[];
@@ -203,6 +235,24 @@ export async function searchDestinations(query: string): Promise<DestinationSugg
     const stops = tflResult.status === 'fulfilled' ? tflResult.value : [];
     const addresses = nominatimResult.status === 'fulfilled' ? nominatimResult.value : [];
     return [...stops, ...addresses].slice(0, 7);
+}
+
+export async function searchPlaces(query: string): Promise<{ id: string; name: string }[]> {
+    const q = query.trim();
+    if (q.length < 2) return [];
+    try {
+        const res = await fetch(
+            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=gb&format=json&addressdetails=1&limit=5`,
+            { headers: { 'User-Agent': 'tfl-arrival-board/1.0' } }
+        );
+        const data = (await res.json()) as NominatimResult[];
+        return data.map((r) => ({
+            id: `${parseFloat(r.lat).toFixed(5)},${parseFloat(r.lon).toFixed(5)}`,
+            name: formatNominatimName(r),
+        }));
+    } catch {
+        return [];
+    }
 }
 
 export async function planJourney(fromStopId: string, toId: string): Promise<Journey[]> {
