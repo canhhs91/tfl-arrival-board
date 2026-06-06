@@ -219,3 +219,30 @@ body {
 [data-theme="modern"] body {
   font-family: var(--font-london-tube), sans-serif;
 }
+
+[data-theme="pink"] {
+  --tfl-bg:         #ffe0f0;
+  --tfl-card:       #ffd6eb;
+  --tfl-card-hover: #ffc9e3;
+  --tfl-border:     rgba(220, 80, 150, 0.2);
+  --tfl-muted:      #c4608a;
+  --tfl-text:       #5a0030;
+  --tfl-amber:      #ff69b4;
+  --tfl-blue:       #e91e8c;
+  --tfl-red:        #e91e8c;
+  --tfl-badge:      #e91e8c;
+  --tfl-badge-text: #ffffff;
+}
+
+[data-theme="pink"] .border-tfl-border {
+  border-color: rgba(220, 80, 150, 0.25);
+}
+
+/* Override hardcoded white text so it's readable on the light pink background */
+[data-theme="pink"] .text-white {
+  color: var(--tfl-text);
+}
+
+[data-theme="pink"] .hover\:text-white:hover {
+  color: #9b1060;
+}

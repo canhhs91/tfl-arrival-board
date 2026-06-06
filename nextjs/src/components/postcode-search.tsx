@@ -6,6 +6,7 @@ import React, { useState } from "react";
 
 type Props = {
   initial?: string;
+  onValueChange?: (value: string) => void;
 };
 
 // Loose UK postcode shape, tested against the space-stripped value.
@@ -16,7 +17,7 @@ const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/;
  * Postcodes route to `/[postcode]` (nearby stops); anything else routes to the
  * `/search` results page (search by stop name).
  */
-export default function PostcodeSearch({ initial = "" }: Props) {
+export default function PostcodeSearch({ initial = "", onValueChange }: Props) {
   const router = useRouter();
   const [value, setValue] = useState(initial);
 
@@ -42,7 +43,7 @@ export default function PostcodeSearch({ initial = "" }: Props) {
         type="text"
         inputMode="text"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => { setValue(e.target.value); onValueChange?.(e.target.value); }}
         placeholder="Postcode or stop name"
         aria-label="Postcode or stop name"
         className="w-full rounded-xl border border-tfl-border bg-tfl-card py-3 pl-10 pr-3 text-base text-white placeholder:text-tfl-muted outline-none focus:border-tfl-amber"

@@ -63,6 +63,14 @@ function fmtTime(iso: string) {
   }
 }
 
+/* ─── format duration in minutes → "45 min" or "1h 15 min" ─────────────── */
+function fmtDuration(mins: number) {
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m} min`;
+}
+
 /* ─── leg row ────────────────────────────────────────────────────────────── */
 function LegRow({ leg, first }: { leg: Journey["legs"][number]; first: boolean }) {
   const isWalk = leg.mode === "walking";
@@ -89,23 +97,58 @@ function LegRow({ leg, first }: { leg: Journey["legs"][number]; first: boolean }
   );
 }
 
-/* ─── journey result card ───────────────────────────────────────────────── */
+/* ─── single accordion journey card ────────────────────────────────────── */
 function JourneyCard({
   journey,
-  onClear,
+  defaultOpen,
 }: {
   journey: Journey;
-  onClear: () => void;
+  defaultOpen: boolean;
 }) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="mt-3 rounded-xl border border-tfl-border bg-tfl-card p-3">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="rounded-xl border border-tfl-border bg-tfl-card overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between px-3 py-2.5 text-left"
+      >
         <div className="flex items-center gap-1.5">
           <Clock size={13} className="text-tfl-amber" />
           <span className="text-sm font-semibold text-tfl-amber">
-            {journey.totalDuration} min · departs {fmtTime(journey.departureTime)}
+            {fmtDuration(journey.totalDuration)} · departs {fmtTime(journey.departureTime)}
           </span>
         </div>
+        <ChevronRight
+          size={15}
+          className={`text-tfl-muted transition-transform duration-200 ${open ? "rotate-90" : ""}`}
+        />
+      </button>
+      {open && (
+        <div className="flex flex-col gap-2.5 border-t border-tfl-border px-3 pb-3 pt-2.5">
+          {journey.legs.map((leg, i) => (
+            <LegRow key={i} leg={leg} first={i === 0} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── multi-route results panel ─────────────────────────────────────────── */
+function JourneyResults({
+  journeys,
+  onClear,
+}: {
+  journeys: Journey[];
+  onClear: () => void;
+}) {
+  return (
+    <div className="mt-3">
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-xs font-medium uppercase tracking-wide text-tfl-muted">
+          {journeys.length} route{journeys.length !== 1 ? "s" : ""} found
+        </p>
         <button
           type="button"
           onClick={onClear}
@@ -115,9 +158,9 @@ function JourneyCard({
           <X size={16} />
         </button>
       </div>
-      <div className="flex flex-col gap-2.5">
-        {journey.legs.map((leg, i) => (
-          <LegRow key={i} leg={leg} first={i === 0} />
+      <div className="flex flex-col gap-2">
+        {journeys.map((j, i) => (
+          <JourneyCard key={i} journey={j} defaultOpen={i === 0} />
         ))}
       </div>
     </div>
@@ -164,7 +207,7 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
     enabled: query.length >= 2 && !selected,
   });
 
-  const { data: journey, isLoading: journeyLoading } = useQuery({
+  const { data: journeys, isLoading: journeyLoading } = useQuery<Journey[]>({
     queryKey: [QUERY_KEYS.JOURNEY, stopId, selected?.id],
     queryFn: () => planJourney(stopId, selected!.id),
     enabled: !!selected,
@@ -180,10 +223,10 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
 
   // Scroll the result card into view once the journey loads.
   useEffect(() => {
-    if (!journeyLoading && journey !== undefined) {
+    if (!journeyLoading && journeys !== undefined) {
       resultRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-  }, [journeyLoading, journey]);
+  }, [journeyLoading, journeys]);
 
   const handleSelect = (s: DestinationSuggestion) => {
     setSelected(s);
@@ -229,7 +272,7 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
           onFocus={() => setOpen(true)}
           placeholder="Where to?"
           aria-label="Destination"
-          className="w-full rounded-xl border border-tfl-border bg-tfl-card py-2.5 pl-9 pr-9 text-base text-white placeholder:text-tfl-muted outline-none focus:border-tfl-amber"
+          className="w-full rounded-xl border border-tfl-border bg-tfl-card py-2.5 pl-9 pr-9 text-base uppercase text-white placeholder:normal-case placeholder:text-tfl-muted outline-none focus:border-tfl-amber"
         />
         {input ? (
           <button
@@ -303,9 +346,9 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
           <div className="mt-3 rounded-xl border border-tfl-border bg-tfl-card p-4 text-sm text-tfl-muted">
             Planning route…
           </div>
-        ) : selected && journey ? (
-          <JourneyCard journey={journey} onClear={handleClear} />
-        ) : selected && journey === null ? (
+        ) : selected && journeys && journeys.length > 0 ? (
+          <JourneyResults journeys={journeys} onClear={handleClear} />
+        ) : selected && journeys && journeys.length === 0 ? (
           <div className="mt-3 rounded-xl border border-tfl-border bg-tfl-card p-4 text-sm text-tfl-muted">
             No route found. Try a different destination.
           </div>

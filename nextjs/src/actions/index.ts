@@ -205,33 +205,31 @@ export async function searchDestinations(query: string): Promise<DestinationSugg
     return [...stops, ...addresses].slice(0, 7);
 }
 
-export async function planJourney(fromStopId: string, toId: string): Promise<Journey | null> {
+export async function planJourney(fromStopId: string, toId: string): Promise<Journey[]> {
     try {
         const res = await apiTflClient.get<TflJourneyResponse>(
             `/Journey/JourneyResults/${encodeURIComponent(fromStopId)}/to/${encodeURIComponent(toId)}`
         );
-        const journey = res.data.journeys?.[0];
-        if (!journey) return null;
+        const raw = res.data.journeys ?? [];
+        if (raw.length === 0) return [];
 
-        const legs: JourneyLeg[] = journey.legs
-            .filter((l) => l.mode.id !== 'walking' || l.duration > 2)
-            .map((l) => ({
-                mode: l.mode.id,
-                line: l.routeOptions?.[0]?.name ?? '',
-                instruction: l.instruction?.summary ?? '',
-                from: l.departurePoint.commonName,
-                to: l.arrivalPoint.commonName,
-                departureTime: l.departureTime,
-                duration: l.duration,
-            }));
-
-        return {
+        return raw.map((journey) => ({
             totalDuration: journey.duration,
             departureTime: journey.startDateTime,
-            legs,
-        };
+            legs: journey.legs
+                .filter((l) => l.mode.id !== 'walking' || l.duration > 2)
+                .map((l) => ({
+                    mode: l.mode.id,
+                    line: l.routeOptions?.[0]?.name ?? '',
+                    instruction: l.instruction?.summary ?? '',
+                    from: l.departurePoint.commonName,
+                    to: l.arrivalPoint.commonName,
+                    departureTime: l.departureTime,
+                    duration: l.duration,
+                })),
+        }));
     } catch {
-        return null;
+        return [];
     }
 }
 

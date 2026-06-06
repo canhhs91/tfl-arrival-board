@@ -8,8 +8,9 @@ import React, {
   PropsWithChildren,
 } from "react";
 
-type Theme = "led" | "modern";
+type Theme = "led" | "modern" | "pink";
 const STORAGE_KEY = "tfl-theme";
+const VALID_THEMES: Theme[] = ["led", "modern", "pink"];
 
 interface ThemeContextValue {
   theme: Theme;
@@ -21,18 +22,19 @@ const ThemeContext = createContext<ThemeContextValue>({
   setTheme: () => {},
 });
 
+function applyTheme(t: Theme) {
+  document.documentElement.setAttribute("data-theme", t === "led" ? "" : t);
+}
+
 export function ThemeProvider({ children }: PropsWithChildren) {
   const [theme, setThemeState] = useState<Theme>("led");
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-      const resolved: Theme = stored === "led" ? "led" : "modern";
+      const resolved: Theme = stored && VALID_THEMES.includes(stored) ? stored : "led";
       setThemeState(resolved);
-      document.documentElement.setAttribute(
-        "data-theme",
-        resolved === "modern" ? "modern" : ""
-      );
+      applyTheme(resolved);
     } catch {}
   }, []);
 
@@ -41,10 +43,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     try {
       localStorage.setItem(STORAGE_KEY, t);
     } catch {}
-    document.documentElement.setAttribute(
-      "data-theme",
-      t === "modern" ? "modern" : ""
-    );
+    applyTheme(t);
   }, []);
 
   return (
