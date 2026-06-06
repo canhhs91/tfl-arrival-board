@@ -28,6 +28,7 @@ export interface RecentStop {
 export interface DestinationSuggestion {
     id: string;
     name: string;
+    type?: 'stop' | 'address';
 }
 
 export interface JourneyLeg {

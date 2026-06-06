@@ -10,12 +10,35 @@ import {
   ChevronRight,
   Clock,
   Footprints,
+  History,
+  MapPin,
   Navigation,
   Search,
   Train,
   X,
 } from "lucide-react";
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+
+/* ─── recent searches (localStorage) ───────────────────────────────────────── */
+const RECENT_KEY = "tfl-journey-recent";
+const MAX_RECENT = 5;
+
+function loadRecent(): DestinationSuggestion[] {
+  if (typeof window === "undefined") return [];
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]"); } catch { return []; }
+}
+
+function saveRecent(item: DestinationSuggestion, current: DestinationSuggestion[]) {
+  const next = [item, ...current.filter((r) => r.id !== item.id)].slice(0, MAX_RECENT);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+  return next;
+}
+
+function deleteRecent(id: string, current: DestinationSuggestion[]) {
+  const next = current.filter((r) => r.id !== id);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+  return next;
+}
 
 /* ─── mode icon ─────────────────────────────────────────────────────────── */
 function ModeIcon({ mode, className }: { mode: string; className?: string }) {
@@ -107,6 +130,8 @@ export type JourneyPlannerHandle = { focus: () => void };
 
 const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyPlanner({ stopId }, ref) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<DestinationSuggestion | null>(null);
@@ -142,6 +167,20 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
     enabled: !!selected,
   });
 
+  // Scroll the planner header into view as soon as a destination is chosen.
+  useEffect(() => {
+    if (selected) {
+      containerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [selected]);
+
+  // Scroll the result card into view once the journey loads.
+  useEffect(() => {
+    if (!journeyLoading && journey !== undefined) {
+      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [journeyLoading, journey]);
+
   const handleSelect = (s: DestinationSuggestion) => {
     setSelected(s);
     setInput(s.name);
@@ -157,7 +196,7 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
   };
 
   return (
-    <div className="pt-4">
+    <div ref={containerRef} className="pt-4">
       <p className="pb-2 text-xs font-medium uppercase tracking-wide text-tfl-muted">
         Plan a journey
       </p>
@@ -208,7 +247,9 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
                   onClick={() => handleSelect(s)}
                   className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-white hover:bg-tfl-card-hover active:bg-tfl-card-hover"
                 >
-                  <ChevronRight size={14} className="shrink-0 text-tfl-muted" />
+                  {s.type === 'address'
+                    ? <MapPin size={14} className="shrink-0 text-tfl-muted" />
+                    : <ChevronRight size={14} className="shrink-0 text-tfl-muted" />}
                   {s.name}
                 </button>
               ))
@@ -218,17 +259,19 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
       </div>
 
       {/* journey result */}
-      {selected && journeyLoading ? (
-        <div className="mt-3 rounded-xl border border-tfl-border bg-tfl-card p-4 text-sm text-tfl-muted">
-          Planning route…
-        </div>
-      ) : selected && journey ? (
-        <JourneyCard journey={journey} onClear={handleClear} />
-      ) : selected && journey === null ? (
-        <div className="mt-3 rounded-xl border border-tfl-border bg-tfl-card p-4 text-sm text-tfl-muted">
-          No route found. Try a different destination.
-        </div>
-      ) : null}
+      <div ref={resultRef}>
+        {selected && journeyLoading ? (
+          <div className="mt-3 rounded-xl border border-tfl-border bg-tfl-card p-4 text-sm text-tfl-muted">
+            Planning route…
+          </div>
+        ) : selected && journey ? (
+          <JourneyCard journey={journey} onClear={handleClear} />
+        ) : selected && journey === null ? (
+          <div className="mt-3 rounded-xl border border-tfl-border bg-tfl-card p-4 text-sm text-tfl-muted">
+            No route found. Try a different destination.
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 });

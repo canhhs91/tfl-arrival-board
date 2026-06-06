@@ -147,6 +147,13 @@ type TflSearchResponse = {
     matches?: { id: string; name: string }[];
 };
 
+type NominatimResult = {
+    lat: string;
+    lon: string;
+    display_name: string;
+    address?: { postcode?: string };
+};
+
 type TflJourneyResponse = {
     journeys?: {
         startDateTime: string;
@@ -163,18 +170,39 @@ type TflJourneyResponse = {
     }[];
 };
 
+function formatNominatimName(r: NominatimResult): string {
+    const segments = r.display_name.split(',').map((s) => s.trim());
+    const postcode = r.address?.postcode;
+    const core = segments.slice(0, 3).join(', ');
+    return postcode && !core.includes(postcode) ? `${core}, ${postcode}` : core;
+}
+
 export async function searchDestinations(query: string): Promise<DestinationSuggestion[]> {
     const q = query.trim();
     if (q.length < 2) return [];
-    try {
-        const res = await apiTflClient.get<TflSearchResponse>(
-            `/StopPoint/Search/${encodeURIComponent(q)}`,
-            { params: { maxResults: 6 } }
-        );
-        return (res.data.matches ?? []).map((m) => ({ id: m.id, name: m.name }));
-    } catch {
-        return [];
-    }
+
+    const [tflResult, nominatimResult] = await Promise.allSettled([
+        apiTflClient
+            .get<TflSearchResponse>(`/StopPoint/Search/${encodeURIComponent(q)}`, { params: { maxResults: 4 } })
+            .then((r) => (r.data.matches ?? []).map((m): DestinationSuggestion => ({ id: m.id, name: m.name, type: 'stop' }))),
+
+        fetch(
+            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=gb&format=json&addressdetails=1&limit=3`,
+            { headers: { 'User-Agent': 'tfl-arrival-board/1.0' } }
+        )
+            .then((r) => r.json() as Promise<NominatimResult[]>)
+            .then((data) =>
+                data.map((r): DestinationSuggestion => ({
+                    id: `${parseFloat(r.lat).toFixed(5)},${parseFloat(r.lon).toFixed(5)}`,
+                    name: formatNominatimName(r),
+                    type: 'address',
+                }))
+            ),
+    ]);
+
+    const stops = tflResult.status === 'fulfilled' ? tflResult.value : [];
+    const addresses = nominatimResult.status === 'fulfilled' ? nominatimResult.value : [];
+    return [...stops, ...addresses].slice(0, 7);
 }
 
 export async function planJourney(fromStopId: string, toId: string): Promise<Journey | null> {
