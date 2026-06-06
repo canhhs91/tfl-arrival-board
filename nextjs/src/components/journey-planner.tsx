@@ -136,7 +136,10 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<DestinationSuggestion | null>(null);
   const [open, setOpen] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<DestinationSuggestion[]>([]);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => { setRecentSearches(loadRecent()); }, []);
 
   useImperativeHandle(ref, () => ({
     focus: () => inputRef.current?.focus(),
@@ -186,6 +189,12 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
     setInput(s.name);
     setOpen(false);
     setQuery("");
+    setRecentSearches((prev) => saveRecent(s, prev));
+  };
+
+  const handleRemoveRecent = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setRecentSearches((prev) => deleteRecent(id, prev));
   };
 
   const handleClear = () => {
@@ -233,9 +242,38 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
         ) : null}
 
         {/* suggestions dropdown */}
-        {open && !selected && (query.length >= 2 || searchLoading) ? (
+        {open && !selected && (query.length >= 2 || searchLoading || (!input && recentSearches.length > 0)) ? (
           <div className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded-xl border border-tfl-border bg-tfl-card shadow-lg">
-            {searchLoading && suggestions.length === 0 ? (
+            {!input && recentSearches.length > 0 ? (
+              <>
+                <p className="px-3 pt-2.5 pb-1 text-xs font-medium uppercase tracking-wide text-tfl-muted">
+                  Recent
+                </p>
+                {recentSearches.map((s) => (
+                  <div
+                    key={s.id}
+                    className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-white hover:bg-tfl-card-hover active:bg-tfl-card-hover"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleSelect(s)}
+                      className="flex flex-1 items-center gap-2 text-left"
+                    >
+                      <History size={14} className="shrink-0 text-tfl-muted" />
+                      {s.name}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handleRemoveRecent(s.id, e)}
+                      aria-label="Remove from recent"
+                      className="text-tfl-muted hover:text-white"
+                    >
+                      <X size={13} />
+                    </button>
+                  </div>
+                ))}
+              </>
+            ) : searchLoading && suggestions.length === 0 ? (
               <p className="px-3 py-3 text-sm text-tfl-muted">Searching…</p>
             ) : suggestions.length === 0 ? (
               <p className="px-3 py-3 text-sm text-tfl-muted">No results found.</p>
