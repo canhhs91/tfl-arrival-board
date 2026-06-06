@@ -28,6 +28,12 @@ const tflFont = localFont({
       style: "normal",
     },
   ],
+  variable: "--font-tfl",
+});
+
+const londonTubeFont = localFont({
+  src: "../fonts/LondonTube-MABx.ttf",
+  variable: "--font-london-tube",
 });
 
 export const metadata: Metadata = {
@@ -56,7 +62,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${tflFont.className} antialiased`}>
+      <head>
+        {/* Prevent flash of wrong theme on load */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('tfl-theme');document.documentElement.setAttribute('data-theme',t==='led'?'':'modern');}catch(e){document.documentElement.setAttribute('data-theme','modern');}})();` }} />
+      </head>
+      <body className={`${tflFont.variable} ${londonTubeFont.variable} ${tflFont.className} antialiased`}>
         <Providers>{children}</Providers>
         <SWRegister />
         <Analytics />

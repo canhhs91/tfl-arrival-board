@@ -3,8 +3,9 @@
 import { getArrival, getNextStops } from "@/actions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { QUERY_KEYS } from "@/constants";
+import { useTheme } from "@/contexts/theme-context";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown, ChevronUp, MapPin } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronUp, MapPin } from "lucide-react";
 import React, { useState } from "react";
 
 type Props = {
@@ -58,6 +59,8 @@ function NextStopsDropdown({
 
 export default function Arrivals({ stop_id }: Props) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const { theme } = useTheme();
+  const isModern = theme === "modern";
 
   const {
     data: arrivals,
@@ -78,9 +81,9 @@ export default function Arrivals({ stop_id }: Props) {
             key={index}
             className="flex items-center gap-3 rounded-xl border border-tfl-border bg-tfl-card p-3"
           >
-            <Skeleton className="h-7 w-12 rounded-md bg-tfl-amber/30" />
+            <Skeleton className="h-10 w-12 rounded-lg bg-tfl-badge/30" />
             <Skeleton className="h-5 flex-1 rounded-full bg-white/10" />
-            <Skeleton className="h-5 w-12 rounded-full bg-tfl-amber/30" />
+            <Skeleton className="h-7 w-10 rounded-full bg-white/10" />
           </div>
         ))}
       </div>
@@ -100,6 +103,8 @@ export default function Arrivals({ stop_id }: Props) {
       {arrivals.slice(0, 10).map((arrival, index) => {
         const isDue = arrival.timeToStationMins === "due";
         const isExpanded = expandedIndex === index;
+        const timeNum = arrival.timeToStationMins?.split(" ")[0] ?? "";
+
         return (
           <div
             key={`${arrival.lineName}-${index}`}
@@ -110,20 +115,42 @@ export default function Arrivals({ stop_id }: Props) {
               onClick={() => setExpandedIndex(isExpanded ? null : index)}
               className="flex w-full items-center gap-3 p-3"
             >
-              <span className="inline-flex min-w-12 shrink-0 items-center justify-center rounded-md bg-tfl-amber px-2 py-1 text-base font-bold text-black">
+              {/* Line badge */}
+              <span className="inline-flex min-w-12 shrink-0 items-center justify-center rounded-lg bg-tfl-badge px-2 py-1.5 text-base font-bold text-tfl-badge-text">
                 {arrival.lineName}
               </span>
-              <span className="flex-1 truncate text-left text-base text-white">
+
+              {/* Destination */}
+              <span className="flex-1 truncate text-left text-base font-semibold text-white">
                 {arrival.destinationName}
               </span>
-              <span
-                className={`shrink-0 text-right text-base font-semibold tabular-nums ${
-                  isDue ? "text-tfl-amber" : "text-white"
-                }`}
-              >
-                {arrival.timeToStationMins}
-              </span>
-              {isExpanded ? (
+
+              {/* Time */}
+              {isModern ? (
+                isDue ? (
+                  <span className="shrink-0 text-right text-sm font-bold text-tfl-amber">
+                    Due
+                  </span>
+                ) : (
+                  <div className="flex shrink-0 items-baseline gap-0.5 text-right tabular-nums">
+                    <span className="text-2xl font-bold text-white">{timeNum}</span>
+                    <span className="text-xs text-tfl-muted">min</span>
+                  </div>
+                )
+              ) : (
+                <span
+                  className={`shrink-0 text-right text-base font-semibold tabular-nums ${
+                    isDue ? "text-tfl-amber" : "text-white"
+                  }`}
+                >
+                  {arrival.timeToStationMins}
+                </span>
+              )}
+
+              {/* Expand chevron */}
+              {isModern ? (
+                <ChevronRight size={18} className="shrink-0 text-tfl-muted" />
+              ) : isExpanded ? (
                 <ChevronUp size={16} className="shrink-0 text-tfl-muted" />
               ) : (
                 <ChevronDown size={16} className="shrink-0 text-tfl-muted" />

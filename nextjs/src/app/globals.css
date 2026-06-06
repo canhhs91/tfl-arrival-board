@@ -8,18 +8,9 @@
 */
 @custom-variant dark (&:is(.dark *));
 
-/* TfL theme tokens */
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-tfl-amber: #ffc80a;
-  --color-tfl-blue: #1c3f94;
-  --color-tfl-red: #dc241f;
-  --color-tfl-bg: #000000;
-  --color-tfl-card: #1a1a1a;
-  --color-tfl-card-hover: #242424;
-  --color-tfl-border: #2a2a2a;
-  --color-tfl-muted: #9a9a9a;
 }
 
 /*
@@ -44,8 +35,8 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background-color: #000;
-  color: #fff;
+  background-color: var(--tfl-bg);
+  color: var(--tfl-text);
 }
 
 /* Mobile-first centered app shell */
@@ -66,6 +57,19 @@ body {
 */
 
 :root {
+  /* TfL LED theme defaults */
+  --tfl-amber:      #ffc80a;
+  --tfl-blue:       #1c3f94;
+  --tfl-red:        #dc241f;
+  --tfl-bg:         #000000;
+  --tfl-card:       #1a1a1a;
+  --tfl-card-hover: #242424;
+  --tfl-border:     #2a2a2a;
+  --tfl-muted:      #9a9a9a;
+  --tfl-text:       #ffffff;
+  --tfl-badge:      #ffc80a;
+  --tfl-badge-text: #000000;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -104,6 +108,17 @@ body {
 /*
   ---break---
 */
+
+[data-theme="modern"] {
+  --tfl-bg:         #001f5c;
+  --tfl-card:       #0c2b6b;
+  --tfl-card-hover: #143278;
+  --tfl-border:     rgba(255, 255, 255, 0.1);
+  --tfl-muted:      rgba(255, 255, 255, 0.55);
+  --tfl-text:       #ffffff;
+  --tfl-badge:      #dc241f;
+  --tfl-badge-text: #ffffff;
+}
 
 .dark {
   --background: oklch(0.145 0 0);
@@ -181,4 +196,26 @@ body {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  /* TfL theme tokens (var() indirection enables runtime theme switching) */
+  --color-tfl-amber:      var(--tfl-amber);
+  --color-tfl-blue:       var(--tfl-blue);
+  --color-tfl-red:        var(--tfl-red);
+  --color-tfl-bg:         var(--tfl-bg);
+  --color-tfl-card:       var(--tfl-card);
+  --color-tfl-card-hover: var(--tfl-card-hover);
+  --color-tfl-border:     var(--tfl-border);
+  --color-tfl-muted:      var(--tfl-muted);
+  --color-tfl-text:       var(--tfl-text);
+  --color-tfl-badge:      var(--tfl-badge);
+  --color-tfl-badge-text: var(--tfl-badge-text);
+}
+
+/* Modern theme: slightly thicker border on arrival cards */
+[data-theme="modern"] .border-tfl-border {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Modern theme: use London Tube font */
+[data-theme="modern"] body {
+  font-family: var(--font-london-tube), sans-serif;
 }

@@ -11,10 +11,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Roundel from "@/components/roundel";
 import PostcodeSearch from "@/components/postcode-search";
 import StopRow from "@/components/stop-row";
+import ThemeToggle from "@/components/theme-toggle";
+import { useTheme } from "@/contexts/theme-context";
 
 export default function LedContent({ postcode }: { postcode: string | null }) {
   const { latitude, longitude, error, locating, locate } = useLatLong(postcode);
   const { recents } = useRecentStops();
+  const { theme } = useTheme();
+  const isModern = theme === "modern";
 
   const { data, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.STOPS, latitude, longitude],
@@ -29,9 +33,10 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
     <div className="flex min-h-0 flex-1 flex-col">
       <header className="flex items-center gap-2 pb-4">
         <Roundel size={28} className="shrink-0" />
-        <h1 className="flex-1 text-lg font-semibold text-white">
+        <h1 className="flex-1 text-2xl font-bold text-white">
           Bus arrivals
         </h1>
+        <ThemeToggle />
         <Clock />
       </header>
 

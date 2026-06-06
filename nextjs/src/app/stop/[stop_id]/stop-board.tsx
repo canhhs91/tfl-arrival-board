@@ -4,6 +4,7 @@ import Arrivals from "@/app/components/arrivals";
 import Clock from "@/app/components/clock";
 import JourneyPlanner, { JourneyPlannerHandle } from "@/components/journey-planner";
 import Roundel from "@/components/roundel";
+import ThemeToggle from "@/components/theme-toggle";
 import useRecentStops from "@/hooks/useRecentStops";
 import { parseStopTitle } from "@/lib/utils";
 import { ChevronLeft, MapPin } from "lucide-react";
@@ -60,7 +61,7 @@ export default function StopBoard() {
           <ChevronLeft size={22} />
         </Link>
         <Roundel size={26} className="shrink-0" />
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h1 className="line-clamp-2 text-lg font-semibold leading-tight text-white">
             {name}
           </h1>
@@ -68,6 +69,7 @@ export default function StopBoard() {
             <span className="text-sm text-tfl-amber">{stopLetter}</span>
           ) : null}
         </div>
+        <ThemeToggle />
       </header>
 
       <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto">
