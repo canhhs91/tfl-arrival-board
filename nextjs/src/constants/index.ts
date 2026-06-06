@@ -35,4 +35,5 @@ export const QUERY_KEYS = {
     NEXT_STOPS: 'next_stops',
     DESTINATIONS: 'destinations',
     JOURNEY: 'journey',
+    NEARBY: 'nearby',
 } as const;
