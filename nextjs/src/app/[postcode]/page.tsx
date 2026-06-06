@@ -6,12 +6,10 @@ import LedContent from "../components/led-content";
 const PostcodePage = () => {
   const { postcode } = useParams();
   return (
-    <div className="led-matrix">
-      <div className="text text-regular">
-        <Suspense fallback={<div>Loading...</div>}>
-          <LedContent postcode={postcode as string} />
-        </Suspense>
-      </div>
+    <div className="app-shell">
+      <Suspense fallback={<div className="text-tfl-muted">Loading…</div>}>
+        <LedContent postcode={(postcode as string) ?? null} />
+      </Suspense>
     </div>
   );
 };

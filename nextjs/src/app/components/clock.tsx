@@ -1,33 +1,37 @@
-"use client"
-import React, { useEffect, useState } from 'react'
+"use client";
+import React, { useEffect, useState } from "react";
 
 export default function Clock() {
-    const [clockTime, setClockTime] = useState('')
+  const [clockTime, setClockTime] = useState("");
+
+  useEffect(() => {
     const updateClock = () => {
-        const now = new Date();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        const seconds = now.getSeconds();
-        const ampm = hours >= 12 ? "PM" : "AM";
-        const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
-        const formattedTime = `${String(formattedHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${ampm}`;
-        setClockTime(formattedTime);
-    }
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+      const ampm = hours >= 12 ? "PM" : "AM";
+      const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
+      setClockTime(
+        `${String(formattedHours).padStart(2, "0")}:${String(minutes).padStart(
+          2,
+          "0"
+        )}:${String(seconds).padStart(2, "0")} ${ampm}`
+      );
+    };
 
-    useEffect(() => {
-        const intervalClockTime = setInterval(() => {
-            updateClock();
-        }, 1000);
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
-        return () => {
-            clearInterval(intervalClockTime);
-        }
-    }, [])
-
-
-    return (
-        <div id="clock" className="text-center font-semibold text-[32px]">
-            {clockTime}
-        </div>
-    )
+  return (
+    <div
+      id="clock"
+      className="text-center text-sm font-medium tabular-nums tracking-wide text-tfl-muted"
+      suppressHydrationWarning
+    >
+      {clockTime}
+    </div>
+  );
 }

@@ -13,6 +13,12 @@ export interface StopData {
     arrivals: Arrival[];
 }
 
+export interface RecentStop {
+    stop_id: string;
+    title: string;
+    viewedAt: number;
+}
+
 export type ResStopPointLatlon = {
     $type?: string;
     centrePoint?: number[];

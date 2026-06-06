@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Providers from "./providers";
@@ -32,6 +32,12 @@ const tflFont = localFont({
 export const metadata: Metadata = {
   title: "London Bus Arrivals Around You",
   description: "Find out the next bus arrivals around you in London",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
