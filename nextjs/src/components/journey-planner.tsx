@@ -1,6 +1,6 @@
 "use client";
 
-import { getStopPoints, planJourney, searchDestinations } from "@/actions";
+import { planJourney, searchDestinations } from "@/actions";
 import { QUERY_KEYS } from "@/constants";
 import { DestinationSuggestion, Journey } from "@/types";
 import { useQuery } from "@tanstack/react-query";
@@ -12,7 +12,6 @@ import {
   Footprints,
   History,
   MapPin,
-  MapPinned,
   Navigation,
   Search,
   Train,
@@ -22,16 +21,12 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 
 /* ─── recent searches (localStorage) ───────────────────────────────────────── */
 const RECENT_KEY = "tfl-journey-recent";
-const COORDS_KEY = "tfl-journey-coords";
 const MAX_RECENT = 5;
 
-function ls<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try { return JSON.parse(localStorage.getItem(key) ?? "null") ?? fallback; } catch { return fallback; }
+function loadRecent(): DestinationSuggestion[] {
+  if (typeof window === "undefined") return [];
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]"); } catch { return []; }
 }
-
-function loadRecent(): DestinationSuggestion[] { return ls<DestinationSuggestion[]>(RECENT_KEY, []); }
-function loadCoords(): { lat: number; lon: number } | null { return ls<{ lat: number; lon: number } | null>(COORDS_KEY, null); }
 
 function saveRecent(item: DestinationSuggestion, current: DestinationSuggestion[]) {
   const next = [item, ...current.filter((r) => r.id !== item.id)].slice(0, MAX_RECENT);
@@ -142,22 +137,9 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
   const [selected, setSelected] = useState<DestinationSuggestion | null>(null);
   const [open, setOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<DestinationSuggestion[]>([]);
-  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(loadCoords);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => { setRecentSearches(loadRecent()); }, []);
-
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const c = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-        localStorage.setItem(COORDS_KEY, JSON.stringify(c));
-        setCoords(c);
-      },
-      () => {}
-    );
-  }, []);
 
   useImperativeHandle(ref, () => ({
     focus: () => inputRef.current?.focus(),
@@ -188,15 +170,6 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
     enabled: !!selected,
   });
 
-  const { data: nearbyStops = [] } = useQuery({
-    queryKey: [QUERY_KEYS.NEARBY, coords?.lat, coords?.lon],
-    queryFn: async () => {
-      const { stops } = await getStopPoints({ lat: coords!.lat, long: coords!.lon });
-      return stops.map((s): DestinationSuggestion => ({ id: s.stop_id, name: s.title, type: 'stop' }));
-    },
-    enabled: !!coords,
-    staleTime: 60_000,
-  });
 
   // Scroll the planner header into view as soon as a destination is chosen.
   useEffect(() => {
@@ -270,58 +243,36 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
         ) : null}
 
         {/* suggestions dropdown */}
-        {open && !selected && (query.length >= 2 || searchLoading || (!input && (nearbyStops.length > 0 || recentSearches.length > 0))) ? (
+        {open && !selected && (query.length >= 2 || searchLoading || (!input && recentSearches.length > 0)) ? (
           <div className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded-xl border border-tfl-border bg-tfl-card shadow-lg">
-            {!input && (nearbyStops.length > 0 || recentSearches.length > 0) ? (
+            {!input && recentSearches.length > 0 ? (
               <>
-                {nearbyStops.length > 0 && (
-                  <>
-                    <p className="px-3 pt-2.5 pb-1 text-xs font-medium uppercase tracking-wide text-tfl-muted">
-                      Nearby
-                    </p>
-                    {nearbyStops.map((s) => (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => handleSelect(s)}
-                        className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-white hover:bg-tfl-card-hover active:bg-tfl-card-hover"
-                      >
-                        <MapPinned size={14} className="shrink-0 text-tfl-muted" />
-                        {s.name}
-                      </button>
-                    ))}
-                  </>
-                )}
-                {recentSearches.length > 0 && (
-                  <>
-                    <p className={`px-3 pb-1 text-xs font-medium uppercase tracking-wide text-tfl-muted ${nearbyStops.length > 0 ? "pt-2 border-t border-tfl-border mt-1" : "pt-2.5"}`}>
-                      Recent
-                    </p>
-                    {recentSearches.map((s) => (
-                      <div
-                        key={s.id}
-                        className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-white hover:bg-tfl-card-hover active:bg-tfl-card-hover"
-                      >
-                        <button
-                          type="button"
-                          onClick={() => handleSelect(s)}
-                          className="flex flex-1 items-center gap-2 text-left"
-                        >
-                          <History size={14} className="shrink-0 text-tfl-muted" />
-                          {s.name}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => handleRemoveRecent(s.id, e)}
-                          aria-label="Remove from recent"
-                          className="text-tfl-muted hover:text-white"
-                        >
-                          <X size={13} />
-                        </button>
-                      </div>
-                    ))}
-                  </>
-                )}
+                <p className="px-3 pt-2.5 pb-1 text-xs font-medium uppercase tracking-wide text-tfl-muted">
+                  Recent
+                </p>
+                {recentSearches.map((s) => (
+                  <div
+                    key={s.id}
+                    className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-white hover:bg-tfl-card-hover active:bg-tfl-card-hover"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleSelect(s)}
+                      className="flex flex-1 items-center gap-2 text-left"
+                    >
+                      <History size={14} className="shrink-0 text-tfl-muted" />
+                      {s.name}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handleRemoveRecent(s.id, e)}
+                      aria-label="Remove from recent"
+                      className="text-tfl-muted hover:text-white"
+                    >
+                      <X size={13} />
+                    </button>
+                  </div>
+                ))}
               </>
             ) : searchLoading && suggestions.length === 0 ? (
               <p className="px-3 py-3 text-sm text-tfl-muted">Searching…</p>
