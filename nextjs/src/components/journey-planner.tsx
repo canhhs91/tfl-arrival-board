@@ -272,7 +272,7 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
           onFocus={() => setOpen(true)}
           placeholder="Where to?"
           aria-label="Destination"
-          className="w-full rounded-xl border border-tfl-border bg-tfl-card py-2.5 pl-9 pr-9 text-base uppercase text-white placeholder:normal-case placeholder:text-tfl-muted outline-none focus:border-tfl-amber"
+          className="w-full rounded-xl border border-tfl-border bg-tfl-card py-2.5 pl-9 pr-9 text-base text-white placeholder:text-tfl-muted outline-none focus:border-tfl-amber"
         />
         {input ? (
           <button
