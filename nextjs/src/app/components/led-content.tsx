@@ -1,7 +1,7 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
-import { Clock as ClockIcon, LocateFixed } from "lucide-react";
+import React, { useState } from "react";
+import { ChevronDown, Clock as ClockIcon, LocateFixed } from "lucide-react";
 import Clock from "./clock";
 import useLatLong from "@/hooks/useLatLong";
 import useRecentStops from "@/hooks/useRecentStops";
@@ -22,10 +22,8 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
   });
 
   const stops = data?.stops ?? [];
+  const [recentsOpen, setRecentsOpen] = useState(false);
 
-  // Avoid showing a recent stop that's already in the nearby list.
-  const nearbyIds = new Set(stops.map((s) => s.stop_id));
-  const filteredRecents = recents.filter((r) => !nearbyIds.has(r.stop_id));
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -54,19 +52,6 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
           Couldn’t get your location. Enter a postcode or stop name above, or try
           again.
         </p>
-      ) : null}
-
-      {filteredRecents.length > 0 ? (
-        <section className="pt-5">
-          <h2 className="flex items-center gap-1.5 pb-2 text-xs font-medium uppercase tracking-wide text-tfl-muted">
-            <ClockIcon size={13} /> Recent stops
-          </h2>
-          <div className="flex flex-col gap-2">
-            {filteredRecents.map((r) => (
-              <StopRow key={r.stop_id} stop_id={r.stop_id} title={r.title} />
-            ))}
-          </div>
-        </section>
       ) : null}
 
       <section className="flex min-h-0 flex-1 flex-col pt-5">
@@ -100,6 +85,30 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
           )}
         </div>
       </section>
+
+      {recents.length > 0 ? (
+        <section className="pt-5">
+          <button
+            type="button"
+            onClick={() => setRecentsOpen((o) => !o)}
+            className="flex w-full items-center gap-1.5 pb-2 text-xs font-medium uppercase tracking-wide text-tfl-muted"
+          >
+            <ClockIcon size={13} />
+            Recent stops
+            <ChevronDown
+              size={13}
+              className={`ml-auto transition-transform duration-200 ${recentsOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+          {recentsOpen && (
+            <div className="flex flex-col gap-2">
+              {recents.map((r) => (
+                <StopRow key={r.stop_id} stop_id={r.stop_id} title={r.title} />
+              ))}
+            </div>
+          )}
+        </section>
+      ) : null}
     </div>
   );
 }

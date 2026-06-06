@@ -22,12 +22,16 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 
 /* ─── recent searches (localStorage) ───────────────────────────────────────── */
 const RECENT_KEY = "tfl-journey-recent";
+const COORDS_KEY = "tfl-journey-coords";
 const MAX_RECENT = 5;
 
-function loadRecent(): DestinationSuggestion[] {
-  if (typeof window === "undefined") return [];
-  try { return JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]"); } catch { return []; }
+function ls<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try { return JSON.parse(localStorage.getItem(key) ?? "null") ?? fallback; } catch { return fallback; }
 }
+
+function loadRecent(): DestinationSuggestion[] { return ls<DestinationSuggestion[]>(RECENT_KEY, []); }
+function loadCoords(): { lat: number; lon: number } | null { return ls<{ lat: number; lon: number } | null>(COORDS_KEY, null); }
 
 function saveRecent(item: DestinationSuggestion, current: DestinationSuggestion[]) {
   const next = [item, ...current.filter((r) => r.id !== item.id)].slice(0, MAX_RECENT);
@@ -138,7 +142,7 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
   const [selected, setSelected] = useState<DestinationSuggestion | null>(null);
   const [open, setOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<DestinationSuggestion[]>([]);
-  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(loadCoords);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => { setRecentSearches(loadRecent()); }, []);
@@ -146,7 +150,11 @@ const JourneyPlanner = forwardRef<JourneyPlannerHandle, Props>(function JourneyP
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
-      (pos) => setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+      (pos) => {
+        const c = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        localStorage.setItem(COORDS_KEY, JSON.stringify(c));
+        setCoords(c);
+      },
       () => {}
     );
   }, []);
