@@ -33,7 +33,7 @@ export default function LedContent({ postcode }: { postcode: string | null }) {
     <div className="flex min-h-0 flex-1 flex-col">
       <header className="flex items-center gap-2 pb-4">
         <Roundel size={28} className="shrink-0" />
-        <h1 className="flex-1 text-2xl font-bold text-white">
+        <h1 className={`flex-1 text-white ${isModern ? "text-2xl font-bold" : "text-lg font-semibold"}`}>
           Bus arrivals
         </h1>
         <ThemeToggle />
