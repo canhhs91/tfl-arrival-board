@@ -25,6 +25,27 @@ export interface RecentStop {
     viewedAt: number;
 }
 
+export interface DestinationSuggestion {
+    id: string;
+    name: string;
+}
+
+export interface JourneyLeg {
+    mode: string;
+    line: string;
+    instruction: string;
+    from: string;
+    to: string;
+    departureTime: string;
+    duration: number;
+}
+
+export interface Journey {
+    totalDuration: number;
+    departureTime: string;
+    legs: JourneyLeg[];
+}
+
 export type ResStopPointLatlon = {
     $type?: string;
     centrePoint?: number[];

@@ -3,7 +3,7 @@
 import { STOP_POINT_DEFAULT } from "@/constants";
 import { apiTflClient } from "@/lib/api-client";
 import { formatArrivalTime } from "@/lib/utils";
-import { Arrival, NextStop, ResStopPointLatlon, StopData, StopPoint } from "@/types";
+import { Arrival, DestinationSuggestion, Journey, JourneyLeg, NextStop, ResStopPointLatlon, StopData, StopPoint } from "@/types";
 
 type SearchResponse = {
     matches?: { id: string; name: string; modes?: string[] }[];
@@ -140,6 +140,70 @@ export async function getNextStops(lineId: string, currentStopId: string): Promi
         return [];
     } catch {
         return [];
+    }
+}
+
+type TflSearchResponse = {
+    matches?: { id: string; name: string }[];
+};
+
+type TflJourneyResponse = {
+    journeys?: {
+        startDateTime: string;
+        duration: number;
+        legs: {
+            duration: number;
+            departureTime: string;
+            mode: { id: string };
+            instruction?: { summary: string };
+            routeOptions?: { name: string }[];
+            departurePoint: { commonName: string };
+            arrivalPoint: { commonName: string };
+        }[];
+    }[];
+};
+
+export async function searchDestinations(query: string): Promise<DestinationSuggestion[]> {
+    const q = query.trim();
+    if (q.length < 2) return [];
+    try {
+        const res = await apiTflClient.get<TflSearchResponse>(
+            `/StopPoint/Search/${encodeURIComponent(q)}`,
+            { params: { maxResults: 6 } }
+        );
+        return (res.data.matches ?? []).map((m) => ({ id: m.id, name: m.name }));
+    } catch {
+        return [];
+    }
+}
+
+export async function planJourney(fromStopId: string, toId: string): Promise<Journey | null> {
+    try {
+        const res = await apiTflClient.get<TflJourneyResponse>(
+            `/Journey/JourneyResults/${encodeURIComponent(fromStopId)}/to/${encodeURIComponent(toId)}`
+        );
+        const journey = res.data.journeys?.[0];
+        if (!journey) return null;
+
+        const legs: JourneyLeg[] = journey.legs
+            .filter((l) => l.mode.id !== 'walking' || l.duration > 2)
+            .map((l) => ({
+                mode: l.mode.id,
+                line: l.routeOptions?.[0]?.name ?? '',
+                instruction: l.instruction?.summary ?? '',
+                from: l.departurePoint.commonName,
+                to: l.arrivalPoint.commonName,
+                departureTime: l.departureTime,
+                duration: l.duration,
+            }));
+
+        return {
+            totalDuration: journey.duration,
+            departureTime: journey.startDateTime,
+            legs,
+        };
+    } catch {
+        return null;
     }
 }
 
